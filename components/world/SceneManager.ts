@@ -1,0 +1,47 @@
+import * as THREE from "three";
+import { SceneKey } from "@/lib/state";
+import { createHubScene } from "@/components/scenes/HubScene";
+import { createAIScene } from "@/components/scenes/AIScene";
+import { Player } from "./Player";
+import { KeyState } from "./Input";
+
+export interface ManagedScene {
+  key: SceneKey;
+  scene: THREE.Scene;
+  tick: (t: number, dt: number) => void;
+  getCamera: () => { camPos: THREE.Vector3; look: THREE.Vector3 };
+  dispose: () => void;
+}
+
+export class SceneManager {
+  private renderer: THREE.WebGLRenderer;
+  private camera: THREE.PerspectiveCamera;
+  private player: Player;
+  private active: ManagedScene;
+
+  constructor(renderer: THREE.WebGLRenderer, camera: THREE.PerspectiveCamera, player: Player) {
+    this.renderer = renderer;
+    this.camera = camera;
+    this.player = player;
+    this.active = createHubScene(this.player);
+  }
+
+  get sceneKey() {
+    return this.active.key;
+  }
+
+  switchScene(key: SceneKey) {
+    if (this.active.key === key) return;
+    this.active.dispose();
+    this.active = key === "hub" ? createHubScene(this.player) : createAIScene(this.player);
+  }
+
+  update(keys: KeyState, t: number, dt: number) {
+    this.player.update(keys, dt);
+    this.active.tick(t, dt);
+    const { camPos, look } = this.active.getCamera();
+    this.camera.position.lerp(camPos, 0.1);
+    this.camera.lookAt(look);
+    this.renderer.render(this.active.scene, this.camera);
+  }
+}
