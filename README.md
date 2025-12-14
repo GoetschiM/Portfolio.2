@@ -22,6 +22,17 @@ public/assets/       # Platz für Modelle, Texturen, Audio
 
 ## Entwicklung
 
+### Node-Version
+
+Die App benötigt Node **>= 18.18** (empfohlen: **20.x**). Mit `nvm` kannst du die passende Version schnell setzen:
+
+```bash
+nvm install
+nvm use
+```
+
+Die `.nvmrc` im Repo zeigt die freigegebene Version.
+
 ```bash
 npm install
 npm run dev
