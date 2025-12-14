@@ -33,6 +33,12 @@ nvm use
 
 Die `.nvmrc` im Repo zeigt die freigegebene Version.
 
+### Häufiger Fehler: `Unexpected token '?'`
+
+Dieser SyntaxError tritt auf, wenn eine zu alte Node-Version (z. B. 12.x) verwendet wird. Stelle sicher, dass `node -v` mindestens
+**18.18** anzeigt und wechsle bei Bedarf mit `nvm use`. Dank `engine-strict` blockiert `npm install` nun automatisch veraltete
+Node- oder npm-Versionen.
+
 ```bash
 npm install
 npm run dev
