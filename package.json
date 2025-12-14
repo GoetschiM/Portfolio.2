@@ -1,7 +1,11 @@
 {
   "name": "portfolio-world",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
