@@ -20,11 +20,12 @@ export default function HomePage() {
       >
         <div style={{ fontSize: 13, letterSpacing: 1.6, opacity: 0.85, textTransform: "uppercase" }}>Portfolio World</div>
         <h1 style={{ margin: "12px 0 8px", fontSize: "clamp(30px, 4vw, 44px)", fontWeight: 900 }}>
-          Systems Hub → AI Room
+          Zwei Pfade: Projekte & CV
         </h1>
         <p style={{ opacity: 0.84, lineHeight: 1.6, fontSize: 15 }}>
-          Vollbild-Experience auf Basis von Next.js + Three.js. Du startest im Systems Hub und kannst per Teleport in den
-          AI Room wechseln. Routing, Asset-Pipeline und UI sind sauber getrennt.
+          Vollbild-Experience auf Basis von Next.js + Three.js. Starte auf einer schwebenden Insel mit Vignette-Fokus, wähle den
+          Projekte- oder CV-Pfad (Tasten 1–4 oder Portale) und teleportiere per Enter in den AI Room. Touch-Steuerung, HUD und
+          CV-Popup sind integriert.
         </p>
 
         <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>

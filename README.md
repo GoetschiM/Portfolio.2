@@ -1,7 +1,9 @@
 # Portfolio World (Next.js + Three.js)
 
-Produktionsreifes Grundgerüst für die neue Portfolio-Welt. Die App nutzt den Next.js App Router, rendert eine rohe
-Three.js-Welt (kein r3f) und trennt Engine/Scenes/Systems/UI sauber nach dem vereinbarten Architekturplan.
+Produktionsreifes Grundgerüst für die neue Portfolio-Welt. Die App nutzt den Next.js App Router, rendert eine Three.js-Welt
+ohne r3f und trennt Engine/Scenes/Systems/UI sauber nach dem vereinbarten Architekturplan. Die Hub-Szene ist jetzt ein
+chunk-gestreamtes Diorama (3×3 Chunks aktiv), das die Welt um den Spieler verschiebt: zwei begehbare Pfade (Projekte links,
+berufliche Timeline rechts), schlanker Avatar-Markierer, sanfte Vignette und Touch-Steuerung.
 
 ## Struktur
 
@@ -45,7 +47,7 @@ npm run dev
 ```
 
 * `http://localhost:3000/` → Landing
-* `http://localhost:3000/world` → Vollbild-3D-Welt (Hub + AI Room Teleport)
+* `http://localhost:3000/world` → Vollbild-3D-Welt (schwebender Diorama-Hub + AI Room Teleport)
 
 ### Behobenes Problem: Kamera-Ziel `null`
 
@@ -55,13 +57,25 @@ npm run dev
 
 ## Controls (World)
 
-* Bewegung: `WASD` / Pfeiltasten
+* Bewegung: `WASD` / Pfeiltasten (oder Touch-DPad auf Devices mit `pointer: coarse`)
 * Sprint: `Shift`
+* Schnell-Sprünge im Hub: `1` Projekte-Pfad, `2` Karriere-Pfad (öffnet auch das CV-Popup), `3` AI-Dock, `4` zurück zum Start
 * Teleport in AI Room: `Enter` (im Hub)
 * Zurück zum Hub: `Backspace` oder `Esc` (im AI Room)
+* Menü oben rechts bleibt immer verfügbar (Portfolio/Projekte/CV/Kontakt)
+
+## Hub-Layout
+
+* Chunk-Streaming: Welt ist in 16×16-Blöcke geteilt, nur ein 3×3-Kreuz wird gerendert; Spieler bleibt zentriert, die Welt
+  bewegt sich
+* Avatar skaliert als Marker (ca. 50 %) mit weiter herausgezoomter Diorama-Kamera (sanfter Parallax, stabile Übersicht)
+* Linker Pfad: vier Projekt-Stationen als echte Setpieces (Glow, Billboard, Pad) entlang einer physischen Spur bei x=-6
+* Rechter Pfad: vier Career-Steps als räumliche Timeline auf Spur x=+6
+* Zentraler AI-Steg als dritter Track; Vignette bleibt aktiv und weich
 
 ## Nächste Schritte
 
-* Effektpipeline (EffectComposer, Bloom, DoF) ergänzen
-* Weitere Scenes (Energy, Trading) anlegen und anbinden
-* Assets (Modelle/Texturen) in `public/assets` einhängen
+* Echtdatei für `/cv.pdf` anhängen
+* Zusätzliche Biome/Scenes (Energy, Trading) anlegen und anbinden
+* Post-Processing (Bloom, DoF) aktivieren und Finetuning der Vignette
+* Inhalte/Assets für Projekt-Panels und CV-Stationen ausfüllen

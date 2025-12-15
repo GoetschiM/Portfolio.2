@@ -20,11 +20,15 @@ export class Player {
     const moveX = right - left;
 
     const speed = PLAYER_SPEED * sprint;
-    this.velocity.set(moveX * speed, 0, -moveZ * speed);
+    const target = new THREE.Vector3(moveX, 0, -moveZ);
+    if (target.lengthSq() > 1e-3) {
+      target.normalize().multiplyScalar(speed);
+    }
+
+    this.velocity.lerp(target, 0.18);
 
     this.position.addScaledVector(this.velocity, dt);
-    this.position.x = clamp(this.position.x, -12, 12);
-    this.position.z = clamp(this.position.z, -28, 6);
+    this.position.x = clamp(this.position.x, -9.5, 9.5);
 
     if (moveX !== 0 || moveZ !== 0) {
       this.bob += dt * 10;

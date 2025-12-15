@@ -2,6 +2,7 @@ export type KeyState = Record<string, boolean>;
 
 export class Input {
   private keys: KeyState = {};
+  private virtual: KeyState = {};
   private unsub?: () => void;
 
   attach() {
@@ -27,6 +28,14 @@ export class Input {
   }
 
   snapshot(): KeyState {
-    return { ...this.keys };
+    return { ...this.keys, ...this.virtual };
+  }
+
+  setVirtual(code: string, pressed: boolean) {
+    this.virtual[code] = pressed;
+  }
+
+  clearVirtual() {
+    this.virtual = {};
   }
 }
