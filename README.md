@@ -5,12 +5,12 @@ ohne r3f und trennt Engine/Scenes/Systems/UI sauber nach dem vereinbarten Archit
 chunk-gestreamtes Diorama (3×3 Chunks aktiv), das die Welt um den Spieler verschiebt: zwei begehbare Pfade (Projekte links,
 berufliche Timeline rechts), schlanker Avatar-Markierer, sanfte Vignette und Touch-Steuerung.
 
-## Neu (0.0.009)
+## Neu (0.0.010)
 
-* Audio jetzt standardmäßig stumm mit gut sichtbarem Toggle (🔇/🔊) unten rechts; kein Auto-Start mehr, Sound erst nach Nutzereingabe.
-* HUD/Navigation kompakter mit Mobil-Menü (Hamburger-Button) und korrigiertem Kontakt-Hinweis; Controls-Panel passt sich an kleinere Breite an.
-* Landing-Page personalisiert («Portfolio von Michel Götschi») mit Wahl zwischen 3D-Welt und schlanker Standard-Ansicht.
-* Neue `/standard`-Seite als einseitiger CV/Projekt-Überblick für schnelle Zugriffe ohne 3D.
+* Hub-Insel komplett neu aufgebaut: mehrlagige Diorama-Platte mit türkisfarbenen Pools, saftigen Moosrändern, leuchtenden Pfadplanken und einem kleinen "Sea House"-Setpiece.
+* Streaming ohne Sprünge: der Fortschritt verschiebt nun die Welt statt den Spieler zu versetzen – das verhindert Kamera-Flackern beim Laufen und hält den Bildausschnitt stabil.
+* Kamera-Übergänge geglättet (neuer dt-basierter Dämpfer + sofortige Initialisierung nach Scene-Wechsel) für stabile Zoomstufe ohne Flackern.
+* Avatar neu gestaltet (Jacke + Visor + Schal), damit die Figur hochwertiger und besser ins neue Farbschema passt.
 
 ## Struktur
 

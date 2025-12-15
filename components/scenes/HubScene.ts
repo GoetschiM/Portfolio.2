@@ -10,6 +10,19 @@ const ACTIVE_RADIUS = 1;
 const TRACK_PROJECT_X = -6;
 const TRACK_CAREER_X = 6;
 const TRACK_AI_X = 0;
+const HOUSE_Z = 34;
+const INTRO_RING = 8;
+
+const palette = {
+  grass: "#75e2a1",
+  moss: "#2e4638",
+  sand: "#f0d9a3",
+  water: "#5fd0ff",
+  wood: "#d9a66f",
+  border: "#7b5a35",
+  stone: "#2f3c3a",
+  light: "#f97316",
+};
 
 type ProjectNode = {
   id: "p1" | "p2" | "p3" | "p4";
@@ -88,37 +101,58 @@ function createChunk(cx: number, cz: number): ChunkEntry {
   const tickers: Array<(t: number, progress: number, player: THREE.Vector3) => void> = [];
 
   const seed = seededRandom(cx, cz);
-  const terrainHeight = 0.4 + 0.8 * Math.sin((cx + cz) * 0.4) + 0.6 * Math.cos(cz * 0.7) + 0.4 * seed;
-  const groundGeo = new THREE.BoxGeometry(CHUNK_SIZE, 0.35, CHUNK_SIZE);
-  const groundMat = new THREE.MeshStandardMaterial({ color: "#64b66b", roughness: 0.62, metalness: 0.05 });
-  const ground = new THREE.Mesh(groundGeo, groundMat);
-  ground.position.y = -0.35 + terrainHeight * 0.22;
-  ground.receiveShadow = true;
-  group.add(ground);
-  disposers.push(() => {
-    groundGeo.dispose();
-    groundMat.dispose();
-  });
+  const terrainHeight = 0.5 + 0.9 * Math.sin((cx + cz) * 0.35) + 0.6 * Math.cos(cz * 0.55) + 0.45 * seed;
+  const plateGeo = new THREE.BoxGeometry(CHUNK_SIZE, 0.55, CHUNK_SIZE);
+  const plateMat = new THREE.MeshStandardMaterial({ color: palette.grass, roughness: 0.5, metalness: 0.08 });
+  const plate = new THREE.Mesh(plateGeo, plateMat);
+  plate.position.y = -0.3 + terrainHeight * 0.18;
+  plate.receiveShadow = true;
+  plate.castShadow = true;
+  group.add(plate);
 
-  const undersideGeo = new THREE.ConeGeometry(CHUNK_SIZE * 0.5, CHUNK_SIZE * 0.8, 24, 1, true);
-  const undersideMat = new THREE.MeshStandardMaterial({ color: "#203726", roughness: 0.9, side: THREE.DoubleSide });
+  const rimGeo = new THREE.BoxGeometry(CHUNK_SIZE - 1.4, 0.1, CHUNK_SIZE - 1.4);
+  const rimMat = new THREE.MeshStandardMaterial({ color: palette.moss, roughness: 0.82 });
+  const rim = new THREE.Mesh(rimGeo, rimMat);
+  rim.position.y = plate.position.y + 0.32;
+  rim.castShadow = true;
+  rim.receiveShadow = true;
+  group.add(rim);
+
+  const undersideGeo = new THREE.ConeGeometry(CHUNK_SIZE * 0.55, CHUNK_SIZE * 0.85, 7, 1, true);
+  const undersideMat = new THREE.MeshStandardMaterial({ color: palette.stone, roughness: 0.9, side: THREE.DoubleSide });
   const underside = new THREE.Mesh(undersideGeo, undersideMat);
-  underside.position.y = -2.4 + terrainHeight * 0.2;
+  underside.position.y = -2.1 + terrainHeight * 0.18;
   underside.castShadow = true;
   group.add(underside);
-  disposers.push(() => {
-    undersideGeo.dispose();
-    undersideMat.dispose();
-  });
 
-  const pebbleGeo = new THREE.BoxGeometry(0.4, 0.25, 0.4);
-  const pebbleMat = new THREE.MeshStandardMaterial({ color: "#3d4a32", roughness: 0.82 });
-  for (let i = 0; i < 16; i++) {
+  if (seed > 0.38 && seed < 0.74) {
+    const waterGeo = new THREE.CircleGeometry(3 + seed * 1.5, 26);
+    const waterMat = new THREE.MeshStandardMaterial({
+      color: palette.water,
+      roughness: 0.2,
+      metalness: 0.12,
+      transparent: true,
+      opacity: 0.78,
+    });
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    water.rotation.x = -Math.PI / 2;
+    water.position.set(1.2 - seed * 2.4, plate.position.y + 0.31, -0.6 + seed * 1.3);
+    water.receiveShadow = true;
+    group.add(water);
+    disposers.push(() => {
+      waterGeo.dispose();
+      waterMat.dispose();
+    });
+  }
+
+  const pebbleGeo = new THREE.DodecahedronGeometry(0.32, 0);
+  const pebbleMat = new THREE.MeshStandardMaterial({ color: palette.stone, roughness: 0.86 });
+  for (let i = 0; i < 12; i++) {
     const r = seededRandom(cx + i, cz - i, 33 + i);
     const pebble = new THREE.Mesh(pebbleGeo, pebbleMat);
     pebble.position.set(
       (r - 0.5) * (CHUNK_SIZE - 3),
-      0.15 + 0.25 * seededRandom(cx - i, cz + i, 123),
+      plate.position.y + 0.32,
       (seededRandom(cx * 3 + i, cz * 2 - i, 92) - 0.5) * (CHUNK_SIZE - 3),
     );
     pebble.rotation.y = seededRandom(cx - i, cz + i, 8088) * Math.PI * 2;
@@ -127,14 +161,25 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     group.add(pebble);
   }
   disposers.push(() => {
+    plateGeo.dispose();
+    plateMat.dispose();
+    rimGeo.dispose();
+    rimMat.dispose();
+    undersideGeo.dispose();
+    undersideMat.dispose();
     pebbleGeo.dispose();
     pebbleMat.dispose();
   });
 
-  const trunkGeo = new THREE.CylinderGeometry(0.18, 0.24, 1.4, 7);
-  const canopyGeo = new THREE.ConeGeometry(0.95, 1.65, 7, 1, false);
-  const trunkMat = new THREE.MeshStandardMaterial({ color: "#7a4f2b", roughness: 0.62 });
-  const canopyMat = new THREE.MeshStandardMaterial({ color: "#59c47c", roughness: 0.42, emissive: new THREE.Color("#59c47c"), emissiveIntensity: 0.12 });
+  const trunkGeo = new THREE.CylinderGeometry(0.18, 0.24, 1.4, 8);
+  const canopyGeo = new THREE.ConeGeometry(1.05, 1.7, 8, 1, false);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: palette.wood, roughness: 0.62, metalness: 0.06 });
+  const canopyMat = new THREE.MeshStandardMaterial({
+    color: "#63f3c4",
+    roughness: 0.42,
+    emissive: new THREE.Color("#63f3c4"),
+    emissiveIntensity: 0.1,
+  });
   const makeTree = (px: number, pz: number, scale = 1) => {
     const trunk = new THREE.Mesh(trunkGeo, trunkMat);
     trunk.position.set(px, 0.7 * scale, pz);
@@ -170,12 +215,24 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     canopyMat.dispose();
   });
 
-  const trackGeo = new THREE.BoxGeometry(1.2, 0.12, 1.2);
-  const trackMatProjects = new THREE.MeshStandardMaterial({ color: "#d8c79f", roughness: 0.52, metalness: 0.08 });
-  const trackMatCareer = new THREE.MeshStandardMaterial({ color: "#f2d5a2", roughness: 0.5, metalness: 0.08 });
-  const trackMatAi = new THREE.MeshStandardMaterial({ color: "#7fb6ff", roughness: 0.48, metalness: 0.2, emissive: new THREE.Color("#7fb6ff"), emissiveIntensity: 0.1 });
-  const borderGeo = new THREE.BoxGeometry(0.28, 0.32, 1.2);
-  const borderMat = new THREE.MeshStandardMaterial({ color: "#8b6a3e", roughness: 0.58, metalness: 0.08 });
+  const trackGeo = new THREE.BoxGeometry(1.25, 0.14, 1.25);
+  const trackMatProjects = new THREE.MeshStandardMaterial({
+    color: palette.wood,
+    roughness: 0.48,
+    metalness: 0.1,
+    emissive: new THREE.Color(palette.wood),
+    emissiveIntensity: 0.06,
+  });
+  const trackMatCareer = new THREE.MeshStandardMaterial({ color: palette.sand, roughness: 0.45, metalness: 0.08 });
+  const trackMatAi = new THREE.MeshStandardMaterial({
+    color: "#9dd8ff",
+    roughness: 0.4,
+    metalness: 0.2,
+    emissive: new THREE.Color("#9dd8ff"),
+    emissiveIntensity: 0.16,
+  });
+  const borderGeo = new THREE.BoxGeometry(0.3, 0.36, 1.25);
+  const borderMat = new THREE.MeshStandardMaterial({ color: palette.border, roughness: 0.55, metalness: 0.1 });
   for (let z = -CHUNK_SIZE / 2; z <= CHUNK_SIZE / 2; z += 1.5) {
     const tileL = new THREE.Mesh(trackGeo, trackMatProjects);
     tileL.position.set(TRACK_PROJECT_X, 0, z);
@@ -296,8 +353,100 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     makeNode(TRACK_AI_X, aiMarker.z, aiMarker.title, aiMarker.teaser, "#6fa0ff", 4.5);
   }
 
+  if (HOUSE_Z >= chunkMin && HOUSE_Z < chunkMax) {
+    const localZ = HOUSE_Z - cz * CHUNK_SIZE;
+    const house = new THREE.Group();
+    house.position.set(TRACK_PROJECT_X - 2.4, 0, localZ);
+
+    const baseGeo = new THREE.BoxGeometry(2.6, 0.35, 2.6);
+    const baseMat = new THREE.MeshStandardMaterial({ color: "#f8eedf", roughness: 0.58, metalness: 0.04 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.2;
+    base.receiveShadow = true;
+    base.castShadow = true;
+    house.add(base);
+
+    const towerGeo = new THREE.BoxGeometry(1.9, 1.8, 1.9);
+    const towerMat = new THREE.MeshStandardMaterial({ color: "#f3dfc4", roughness: 0.45, metalness: 0.06 });
+    const tower = new THREE.Mesh(towerGeo, towerMat);
+    tower.position.y = 1.2;
+    tower.castShadow = true;
+    tower.receiveShadow = true;
+    house.add(tower);
+
+    const roofGeo = new THREE.ConeGeometry(1.45, 0.9, 6);
+    const roofMat = new THREE.MeshStandardMaterial({ color: palette.light, roughness: 0.35, metalness: 0.12 });
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = 2.25;
+    roof.castShadow = true;
+    roof.receiveShadow = true;
+    house.add(roof);
+
+    const dockGeo = new THREE.BoxGeometry(2.8, 0.16, 1.6);
+    const dockMat = new THREE.MeshStandardMaterial({ color: palette.wood, roughness: 0.55, metalness: 0.08 });
+    const dock = new THREE.Mesh(dockGeo, dockMat);
+    dock.position.set(-0.2, 0.05, 1.75);
+    dock.castShadow = true;
+    dock.receiveShadow = true;
+    house.add(dock);
+
+    const postGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.8, 6);
+    const postMat = new THREE.MeshStandardMaterial({ color: palette.border, roughness: 0.55, metalness: 0.08 });
+    const mkPost = (x: number, z: number) => {
+      const p = new THREE.Mesh(postGeo, postMat);
+      p.position.set(x, 0.4, z);
+      p.castShadow = true;
+      p.receiveShadow = true;
+      house.add(p);
+    };
+    mkPost(-0.9, 2.5);
+    mkPost(1.1, 2.4);
+
+    const flag = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.08), postMat);
+    flag.position.set(0.95, 2.05, -0.4);
+    flag.castShadow = true;
+    house.add(flag);
+
+    const banner = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.4, 0.5), roofMat);
+    banner.position.set(0.95, 2.25, -0.7);
+    banner.castShadow = true;
+    house.add(banner);
+
+    const buoy = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.08, 8, 18), new THREE.MeshStandardMaterial({ color: "#8cc8ff" }));
+    buoy.position.set(1, 1.2, 0.65);
+    buoy.rotation.x = Math.PI / 2;
+    buoy.castShadow = true;
+    house.add(buoy);
+
+    const lamp = new THREE.PointLight(palette.light, 1.8, 6, 2);
+    lamp.position.set(0.2, 2.4, 0.2);
+    house.add(lamp);
+
+    group.add(house);
+
+    disposers.push(() => {
+      baseGeo.dispose();
+      baseMat.dispose();
+      towerGeo.dispose();
+      towerMat.dispose();
+      roofGeo.dispose();
+      roofMat.dispose();
+      dockGeo.dispose();
+      dockMat.dispose();
+      postGeo.dispose();
+      postMat.dispose();
+      (flag.geometry as THREE.BufferGeometry).dispose();
+      (flag.material as THREE.Material).dispose();
+      (banner.geometry as THREE.BufferGeometry).dispose();
+      (banner.material as THREE.Material).dispose();
+      (buoy.geometry as THREE.TorusGeometry).dispose();
+      (buoy.material as THREE.Material).dispose();
+      lamp.dispose();
+    });
+  }
+
   const reedGeo = new THREE.CylinderGeometry(0.14, 0.22, 1.2, 6);
-  const reedMat = new THREE.MeshStandardMaterial({ color: "#4ea06c", roughness: 0.48, emissive: new THREE.Color("#4ea06c"), emissiveIntensity: 0.06 });
+  const reedMat = new THREE.MeshStandardMaterial({ color: "#49d88f", roughness: 0.46, emissive: new THREE.Color("#49d88f"), emissiveIntensity: 0.08 });
   for (let i = 0; i < 8; i++) {
     const reed = new THREE.Mesh(reedGeo, reedMat);
     reed.position.set(
@@ -328,24 +477,24 @@ function createChunk(cx: number, cz: number): ChunkEntry {
 
 export function createHubScene(player: Player): ManagedScene {
   const scene = new THREE.Scene();
-  const SKY = new THREE.Color("#d8f1ff");
+  const SKY = new THREE.Color("#bff2ff");
   scene.background = SKY;
-  scene.fog = new THREE.Fog(SKY, 12, 110);
+  scene.fog = new THREE.Fog(SKY, 10, 96);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 1.02));
-  const hemi = new THREE.HemisphereLight(0xeef9ff, 0x2e402d, 0.72);
-  hemi.position.set(0, 18, 0);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.86));
+  const hemi = new THREE.HemisphereLight(0xe7f6ff, 0x27443a, 0.78);
+  hemi.position.set(0, 22, 0);
   scene.add(hemi);
 
-  const sun = new THREE.DirectionalLight(0xfff1c8, 1.65);
-  sun.position.set(-14, 18, 13);
+  const sun = new THREE.DirectionalLight(0xffe9c3, 1.72);
+  sun.position.set(-12, 19, 12);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1536, 1536);
   sun.shadow.camera.far = 120;
   scene.add(sun);
 
-  const bounce = new THREE.DirectionalLight(0xb3d7ff, 0.4);
-  bounce.position.set(16, 12, -10);
+  const bounce = new THREE.DirectionalLight(0xa2d8ff, 0.46);
+  bounce.position.set(14, 11, -12);
   scene.add(bounce);
 
   const avatar = createAvatar();
@@ -400,6 +549,7 @@ export function createHubScene(player: Player): ManagedScene {
 
   player.position.set(0, 0, 0);
   worldRoot.position.set(0, 0, 0);
+  let progress = 0;
 
   const applyAnchor = (anchor: "intro" | "projects" | "career" | "ai") => {
     const anchorMap: Record<"intro" | "projects" | "career" | "ai", { progress: number; x: number }> = {
@@ -410,7 +560,8 @@ export function createHubScene(player: Player): ManagedScene {
     };
     const target = anchorMap[anchor];
     player.position.set(target.x, 0, 0);
-    worldRoot.position.z = target.progress + player.position.z;
+    progress = target.progress;
+    worldRoot.position.z = progress;
     resetChunks();
   };
 
@@ -422,36 +573,36 @@ export function createHubScene(player: Player): ManagedScene {
     key: "hub",
     scene,
     tick: (t: number, dt: number) => {
-      const threshold = CHUNK_SIZE * 0.35;
-      if (player.position.z < -threshold) {
-        player.position.z += CHUNK_SIZE;
-        worldRoot.position.z += CHUNK_SIZE;
-      } else if (player.position.z > threshold) {
-        player.position.z -= CHUNK_SIZE;
-        worldRoot.position.z -= CHUNK_SIZE;
-      }
+      progress -= player.position.z;
+      player.position.z = 0;
+      worldRoot.position.z = progress;
 
-      const progressZ = worldRoot.position.z - player.position.z;
       const chunkX = Math.floor(player.position.x / CHUNK_SIZE);
-      const chunkZ = Math.floor(progressZ / CHUNK_SIZE);
+      const chunkZ = Math.floor(progress / CHUNK_SIZE);
       ensureChunks(chunkX, chunkZ);
 
-      const nearCore = progressZ < 8 && Math.abs(player.position.x) < 4;
-      const targetWind = nearCore ? 0.85 : 0.28;
+      const nearCore = progress < INTRO_RING && Math.abs(player.position.x) < 4;
+      const targetWind = nearCore ? 0.85 : 0.32;
       wind = lerp(wind, targetWind, 0.06);
 
-      flow.update(t, wind, nearCore ? player.position.clone().add(new THREE.Vector3(0, 1, 0)) : null);
-      chunkMap.forEach((entry) => entry.tick(t, progressZ, player.position));
+      flow.update(
+        t,
+        wind,
+        nearCore ? player.position.clone().add(new THREE.Vector3(0, 1, 0)) : player.position.clone(),
+      );
+      chunkMap.forEach((entry) => entry.tick(t, progress, player.position));
       avatar.update(player, t);
-      sun.intensity = 1.2 + 0.3 * wind;
+      sun.intensity = 1.28 + 0.26 * wind;
     },
     getCamera: () => {
-      const parallax = player.position.clone().multiplyScalar(0.18);
-      parallax.x = THREE.MathUtils.clamp(parallax.x, -2.2, 2.2);
-      parallax.z = THREE.MathUtils.clamp(parallax.z, -2.2, 2.2);
-      const anchor = new THREE.Vector3(0, 10.8, 13.6);
-      const camPos = anchor.clone().add(new THREE.Vector3(parallax.x, 0, parallax.z));
-      const look = new THREE.Vector3(player.position.x * 0.55, 1.4, player.position.z - 1.2);
+      const parallax = new THREE.Vector3(
+        THREE.MathUtils.clamp(player.position.x * 0.22, -2.6, 2.6),
+        0,
+        THREE.MathUtils.clamp(progress * 0.012, -1.1, 2.4),
+      );
+      const anchor = new THREE.Vector3(0, 11.8, 14.6);
+      const camPos = anchor.clone().add(parallax);
+      const look = new THREE.Vector3(player.position.x * 0.58, 1.55, -1 + Math.min(progress, 48) * 0.01);
       return { camPos, look };
     },
     setAnchor: (anchor) => {
