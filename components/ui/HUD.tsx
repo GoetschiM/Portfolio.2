@@ -11,7 +11,7 @@ export default function HUD({ text }: HUDProps) {
         left: 12,
         top: 12,
         padding: "12px 14px",
-        maxWidth: "560px",
+        maxWidth: "min(620px, 92vw)",
         pointerEvents: "none",
       }}
     >

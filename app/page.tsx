@@ -14,18 +14,17 @@ export default function HomePage() {
         className="hud-card"
         style={{
           padding: "24px",
-          maxWidth: "720px",
+          maxWidth: "780px",
           width: "100%",
         }}
       >
-        <div style={{ fontSize: 13, letterSpacing: 1.6, opacity: 0.85, textTransform: "uppercase" }}>Portfolio World</div>
+        <div style={{ fontSize: 13, letterSpacing: 1.6, opacity: 0.85, textTransform: "uppercase" }}>Willkommen</div>
         <h1 style={{ margin: "12px 0 8px", fontSize: "clamp(30px, 4vw, 44px)", fontWeight: 900 }}>
-          Zwei Pfade: Projekte & CV
+          Portfolio von Michel Götschi
         </h1>
-        <p style={{ opacity: 0.84, lineHeight: 1.6, fontSize: 15 }}>
-          Vollbild-Experience auf Basis von Next.js + Three.js. Starte auf einer schwebenden Insel mit Vignette-Fokus, wähle den
-          Projekte- oder CV-Pfad (Tasten 1–4 oder Portale) und teleportiere per Enter in den AI Room. Touch-Steuerung, HUD und
-          CV-Popup sind integriert.
+        <p style={{ opacity: 0.86, lineHeight: 1.6, fontSize: 15 }}>
+          Hallo! Schön, dass du da bist. Wähle den immersiven 3D-Weg «Welt betreten» oder die fokussierte Standard-Ansicht. Alle
+          Projekte, Stationen und mein CV sind griffbereit – ganz ohne Datenverlust.
         </p>
 
         <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
@@ -40,6 +39,18 @@ export default function HomePage() {
             }}
           >
             Welt betreten
+          </Link>
+          <Link
+            href="/standard"
+            style={{
+              padding: "12px 16px",
+              borderRadius: 14,
+              border: "1px solid rgba(150,190,255,0.35)",
+              background: "rgba(255,255,255,0.06)",
+              fontWeight: 800,
+            }}
+          >
+            Standard
           </Link>
           <Link
             href="https://threejs.org/"
