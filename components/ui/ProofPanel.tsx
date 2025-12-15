@@ -66,7 +66,12 @@ export default function ProofPanel({ onClose }: ProofPanelProps) {
           >
             CV als PDF herunterladen (Platzhalter)
           </a>
-          {["XR/AI Experience Design", "Backbone: Next.js + Three.js", "Teleport-Navigation (1-4)", "Projekte & CV als zwei Pfade"].map(
+          {[
+            "Voxel-Insel statt abstraktem Grid",
+            "Backbone: Next.js + Three.js",
+            "Teleport-Navigation (1–3)",
+            "Projekte & CV als zwei Pfade",
+          ].map(
             (b) => (
               <div
                 key={b}

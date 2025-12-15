@@ -1,4 +1,4 @@
-export type SceneKey = "hub" | "ai";
+export type SceneKey = "hub";
 
 export interface WorldStateSnapshot {
   scene: SceneKey;

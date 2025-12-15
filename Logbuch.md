@@ -11,3 +11,4 @@
 
 - 2025-12-15 21:35 UTC — Audio standardmäßig gemutet mit Toggle, Landing personalisiert (Michel Götschi) plus Standard-Onepager ergänzt, HUD mobilfreundlicher gestaltet, README/VERSION aktualisiert.
 - 2025-12-15 22:10 UTC — Hub-Insel visuell neu gebaut (Diorama-Platte, Pools, Sea-House), Weltverschiebung glättet Kamera, Avatar mit Visor/Jacke/Schal erneuert, README/VERSION aktualisiert.
+- 2025-12-15 22:40 UTC — Welt komplett gelöscht und als schwebende Voxel-Insel neu gebaut (Pools, Cabin, leuchtende Pfade), AI-Raum entfernt, Navigation (1–3) & Overlay mobilfreundlich neu sortiert, Landing/README/VERSION aktualisiert.
