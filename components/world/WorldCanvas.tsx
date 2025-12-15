@@ -5,8 +5,6 @@ import * as THREE from "three";
 import { SceneManager } from "./SceneManager";
 import { Player } from "./Player";
 import { Input } from "./Input";
-import { clamp, smoothstep } from "@/lib/math";
-import { SceneKey } from "@/lib/state";
 import { AmbientAudio } from "./AmbientAudio";
 
 interface WorldCanvasProps {
@@ -63,75 +61,27 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
     inputManager.attach();
     onInputReady?.(inputManager);
 
-    const startTeleport = (to: SceneKey) => {
-      const start = performance.now();
-      const durOut = 320;
-      const durIn = 420;
-
-      const step = (time: number) => {
-        const elapsed = time - start;
-        if (elapsed < durOut) {
-          const p = clamp(elapsed / durOut, 0, 1);
-          const a = smoothstep(0, 1, p);
-          fadeRef.current = a;
-          onHudChange("Teleport wird vorbereitet…");
-          requestAnimationFrame(step);
-          return;
-        }
-
-        sceneManager.switchScene(to);
-        const startIn = performance.now();
-        const stepIn = (tt: number) => {
-          const e2 = tt - startIn;
-          const p = clamp(e2 / durIn, 0, 1);
-          const a = 1 - smoothstep(0, 1, p);
-          fadeRef.current = a;
-          if (p < 1) requestAnimationFrame(stepIn);
-        };
-        requestAnimationFrame(stepIn);
-      };
-
-      requestAnimationFrame(step);
-    };
-
     const clock = new THREE.Clock();
     const loop = () => {
       const dt = Math.min(clock.getDelta(), 0.033);
       const t = performance.now() / 1000;
       const keys = inputManager.snapshot();
 
-      if (sceneManager.sceneKey === "hub") {
-        if (keys["Enter"] && fadeRef.current < 0.02) {
-          keys["Enter"] = false;
-          startTeleport("ai");
-          onBubble("[INFO] Teleport → AI Room");
-        }
-
-        if (keys["Digit1"]) {
-          managerRef.current?.jumpToAnchor("projects");
-          keys["Digit1"] = false;
-          onBubble("[INFO] Projekte-Pfad angesteuert (Taste 1)");
-        }
-        if (keys["Digit2"]) {
-          managerRef.current?.jumpToAnchor("career");
-          keys["Digit2"] = false;
-          onBubble("[INFO] Karriere-Pfad angesteuert (Taste 2)");
-          onProof(true);
-        }
-        if (keys["Digit3"]) {
-          managerRef.current?.jumpToAnchor("ai");
-          keys["Digit3"] = false;
-          onBubble("[INFO] Direkt am AI-Pad (Taste 3)");
-        }
-        if (keys["Digit4"]) {
-          managerRef.current?.jumpToAnchor("intro");
-          keys["Digit4"] = false;
-          onBubble("[INFO] Zurück zum Startpunkt (Taste 4)");
-        }
+      if (keys["Digit1"]) {
+        managerRef.current?.jumpToAnchor("projects");
+        keys["Digit1"] = false;
+        onBubble("[INFO] Links zum Projektpfad (Taste 1)");
       }
-      if ((keys["Backspace"] || keys["Escape"]) && sceneManager.sceneKey === "ai" && fadeRef.current < 0.02) {
-        startTeleport("hub");
-        onBubble("[INFO] Zurück zum Systems Hub");
+      if (keys["Digit2"]) {
+        managerRef.current?.jumpToAnchor("career");
+        keys["Digit2"] = false;
+        onBubble("[INFO] Rechts zur Karriere-Terrasse (Taste 2)");
+        onProof(true);
+      }
+      if (keys["Digit3"]) {
+        managerRef.current?.jumpToAnchor("intro");
+        keys["Digit3"] = false;
+        onBubble("[INFO] Zurück zum Startplateau (Taste 3)");
       }
 
       ambient.setMovementSpeed(player.current.velocity.length());
@@ -151,9 +101,7 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
     };
     overlayStep();
 
-    onHudChange(
-      "Chunk-Hub: WASD/Pfeile • Shift Sprint • Enter AI-Raum • 1 Projekte • 2 Karriere • 3 AI-Dock • 4 Start",
-    );
+    onHudChange("Insel-Welt: WASD/Pfeile • Shift Sprint • 1 Projekte • 2 Karriere • 3 Startplateau");
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);

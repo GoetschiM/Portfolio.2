@@ -10,7 +10,7 @@ import { Input } from "@/components/world/Input";
 
 export default function WorldPage() {
   const [hud, setHud] = useState(
-    "Chunk-Hub: WASD/Pfeile • Shift Sprint • Enter AI-Raum • 1 Projekte • 2 Karriere • 3 AI-Dock • 4 Start",
+    "Schwebe-Insel: WASD/Pfeile • Shift Sprint • 1 Projekte (links) • 2 Karriere (rechts) • 3 Startplateau",
   );
   const [bubbles, setBubbles] = useState<string[]>([]);
   const [showProof, setShowProof] = useState(false);
@@ -23,7 +23,7 @@ export default function WorldPage() {
     const media = window.matchMedia("(max-width: 780px)");
     const handle = (ev: MediaQueryListEvent | MediaQueryList) => {
       setIsCompact(ev.matches);
-      if (!ev.matches) setMenuOpen(false);
+      if (!ev.matches) setMenuOpen(true);
     };
     handle(media);
     media.addEventListener("change", handle);
@@ -40,100 +40,94 @@ export default function WorldPage() {
         muted={audioMuted}
       />
       <div className="overlay" style={{ padding: 14 }}>
+        <HUD text={hud} />
         <div
+          className="hud-card"
           style={{
-            display: "flex",
-            flexDirection: isCompact ? "column" : "row",
-            alignItems: isCompact ? "flex-start" : "center",
-            justifyContent: "space-between",
+            position: "absolute",
+            right: 12,
+            top: isCompact ? 96 : 12,
+            width: isCompact ? "calc(100% - 24px)" : 340,
+            maxWidth: 420,
+            padding: "12px 14px",
+            display: "grid",
             gap: 10,
-            pointerEvents: "none",
+            pointerEvents: "auto",
           }}
         >
-          <HUD text={hud} />
-          <div style={{ display: "grid", gap: 8, pointerEvents: "auto", alignSelf: "flex-start" }}>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+            <div>
               <div style={{ fontSize: 12, letterSpacing: 1.4, opacity: 0.82, textTransform: "uppercase" }}>
-                Portfolio Navigation
+                Insel-Navigation
               </div>
-              {isCompact && (
-                <button
-                  aria-label="Menü umschalten"
-                  onClick={() => setMenuOpen((v) => !v)}
-                  style={{
-                    cursor: "pointer",
-                    padding: "8px 12px",
-                    borderRadius: 10,
-                    border: "1px solid rgba(150,190,255,0.35)",
-                    background: "rgba(12,18,26,0.85)",
-                    color: "#e9f2ff",
-                    fontWeight: 800,
-                    letterSpacing: 0.3,
-                  }}
-                >
-                  {menuOpen ? "Schließen" : "Menü"}
-                </button>
-              )}
+              <div style={{ fontWeight: 850, marginTop: 4 }}>CV, Projekte, Kontakt</div>
             </div>
-            {(menuOpen || !isCompact) && (
-              <div
-                className="hud-card"
+            {isCompact && (
+              <button
+                aria-label="Menü umschalten"
+                onClick={() => setMenuOpen((v) => !v)}
                 style={{
-                  padding: "12px 14px",
-                  display: "grid",
-                  gap: 8,
-                  maxWidth: isCompact ? "100%" : 360,
+                  cursor: "pointer",
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(150,190,255,0.35)",
+                  background: "rgba(12,18,26,0.9)",
+                  color: "#e9f2ff",
+                  fontWeight: 800,
+                  letterSpacing: 0.3,
                 }}
               >
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  <button
-                    onClick={() => setShowProof(true)}
-                    style={{
-                      cursor: "pointer",
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid rgba(150,190,255,0.35)",
-                      background: "rgba(12,18,26,0.85)",
-                      color: "#e9f2ff",
-                      fontWeight: 800,
-                    }}
-                  >
-                    CV anzeigen
-                  </button>
-                  <button
-                    onClick={() =>
-                      setBubbles((prev) => ["[INFO] Projekte → Taste 1 oder Portal links", ...prev].slice(0, 5))
-                    }
-                    style={{
-                      cursor: "pointer",
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid rgba(150,190,255,0.2)",
-                      background: "rgba(255,255,255,0.06)",
-                      color: "#e9f2ff",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Projekte
-                  </button>
-                  <button
-                    onClick={() => setBubbles((prev) => ["[INFO] Kontakt → michel.goetschi@gmail.com", ...prev].slice(0, 5))}
-                    style={{
-                      cursor: "pointer",
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid rgba(150,190,255,0.2)",
-                      background: "rgba(255,255,255,0.06)",
-                      color: "#e9f2ff",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Kontakt
-                  </button>
-                </div>
-              </div>
+                {menuOpen ? "Schließen" : "Menü"}
+              </button>
             )}
           </div>
+
+          {(!isCompact || menuOpen) && (
+            <div style={{ display: "grid", gap: 8 }}>
+              <button
+                onClick={() => setShowProof(true)}
+                style={{
+                  cursor: "pointer",
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(150,190,255,0.35)",
+                  background: "linear-gradient(180deg, rgba(12,18,26,0.9), rgba(5,9,14,0.9))",
+                  color: "#e9f2ff",
+                  fontWeight: 850,
+                }}
+              >
+                CV anzeigen
+              </button>
+              <button
+                onClick={() => setBubbles((prev) => ["[INFO] Projekte → Taste 1 oder linker Pfad", ...prev].slice(0, 5))}
+                style={{
+                  cursor: "pointer",
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(150,190,255,0.2)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "#e9f2ff",
+                  fontWeight: 750,
+                }}
+              >
+                Projekte
+              </button>
+              <button
+                onClick={() => setBubbles((prev) => ["[INFO] Kontakt → michel.goetschi@gmail.com", ...prev].slice(0, 5))}
+                style={{
+                  cursor: "pointer",
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(150,190,255,0.2)",
+                  background: "rgba(255,255,255,0.06)",
+                  color: "#e9f2ff",
+                  fontWeight: 750,
+                }}
+              >
+                Kontakt
+              </button>
+            </div>
+          )}
         </div>
         <BubbleHUD bubbles={bubbles} />
         {showProof && <ProofPanel onClose={() => setShowProof(false)} />}

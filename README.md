@@ -1,16 +1,17 @@
 # Portfolio World (Next.js + Three.js)
 
 Produktionsreifes Grundgerüst für die neue Portfolio-Welt. Die App nutzt den Next.js App Router, rendert eine Three.js-Welt
-ohne r3f und trennt Engine/Scenes/Systems/UI sauber nach dem vereinbarten Architekturplan. Die Hub-Szene ist jetzt ein
-chunk-gestreamtes Diorama (3×3 Chunks aktiv), das die Welt um den Spieler verschiebt: zwei begehbare Pfade (Projekte links,
-berufliche Timeline rechts), schlanker Avatar-Markierer, sanfte Vignette und Touch-Steuerung.
+ohne r3f und trennt Engine/Scenes/Systems/UI sauber nach dem vereinbarten Architekturplan. Die Hub-Szene ist jetzt eine
+schwebende Insel im Voxellook: Pools, Klippen, Baumgruppen, Cabin-Setpiece und leuchtende Pfade für Projekte (links) sowie die
+Karriere/CV-Spur (rechts). Avatar, Kamera und Touch-Steuerung bleiben erhalten, aber die Welt ist deutlich kompakter und
+aufgeräumter.
 
-## Neu (0.0.010)
+## Neu (0.0.011)
 
-* Hub-Insel komplett neu aufgebaut: mehrlagige Diorama-Platte mit türkisfarbenen Pools, saftigen Moosrändern, leuchtenden Pfadplanken und einem kleinen "Sea House"-Setpiece.
-* Streaming ohne Sprünge: der Fortschritt verschiebt nun die Welt statt den Spieler zu versetzen – das verhindert Kamera-Flackern beim Laufen und hält den Bildausschnitt stabil.
-* Kamera-Übergänge geglättet (neuer dt-basierter Dämpfer + sofortige Initialisierung nach Scene-Wechsel) für stabile Zoomstufe ohne Flackern.
-* Avatar neu gestaltet (Jacke + Visor + Schal), damit die Figur hochwertiger und besser ins neue Farbschema passt.
+* Welt-Reset: Insel nach Bild-Referenz aufgebaut (mehrlagige Klippen, Pools, Cabin, leuchtende Pfade) und AI-Raum entfernt.
+* Neue Marker & Beschilderung für vier Projekte und vier Karriere-Stationen, inkl. Glow, Billboard und Light-Pads.
+* HUD/Overlay neu angeordnet: Controls links oben, Navigation als separate Karte rechts (mobile-friendly Toggle).
+* Landing-Intro überarbeitet, damit die neue Insel-Optik und Navigation (Tasten 1–3) sofort klar sind.
 
 ## Struktur
 
@@ -21,7 +22,7 @@ app/
 
 components/
 ├─ world/            # Renderer, Camera, Loop, Input
-├─ scenes/           # HubScene, AIScene (erste Portierung)
+├─ scenes/           # HubScene
 ├─ systems/          # OrganicFlow
 └─ ui/               # HUD, BubbleHUD, ProofPanel
 
@@ -54,31 +55,28 @@ npm run dev
 ```
 
 * `http://localhost:3000/` → Landing
-* `http://localhost:3000/world` → Vollbild-3D-Welt (schwebender Diorama-Hub + AI Room Teleport)
+* `http://localhost:3000/world` → Vollbild-3D-Welt (schwebende Insel)
 
 ### Behobenes Problem: Kamera-Ziel `null`
 
 * Ursache: Der Player lieferte Kamera-Ziele als `{ cameraPos, lookAt }`, während die Szenen `{ camPos, look }` erwarteten.
-* Fix: Ab Version `0.0.004` exportiert `Player.getCameraTargets()` konsistente Keys, wodurch der Fehler `Cannot read properties of null (reading 'look')` verschwindet.
+* Fix: Ab Version `0.0.004` exportiert `Player.getCameraTargets()` konsistente Keys, wodurch der Fehler `Cannot read properties
+of null (reading 'look')` verschwindet.
 * Hinweis: Falls der Fehler noch im laufenden Dev-Server erscheint, bitte kurz neu starten (`npm run dev`) und den Cache der Seite aktualisieren.
 
 ## Controls (World)
 
 * Bewegung: `WASD` / Pfeiltasten (oder Touch-DPad auf Devices mit `pointer: coarse`)
 * Sprint: `Shift`
-* Schnell-Sprünge im Hub: `1` Projekte-Pfad, `2` Karriere-Pfad (öffnet auch das CV-Popup), `3` AI-Dock, `4` zurück zum Start
-* Teleport in AI Room: `Enter` (im Hub)
-* Zurück zum Hub: `Backspace` oder `Esc` (im AI Room)
-* Menü oben rechts bleibt immer verfügbar (Portfolio/Projekte/CV/Kontakt)
+* Schnell-Sprünge im Hub: `1` Projekte-Pfad, `2` Karriere/CV-Pfad (öffnet auch das CV-Popup), `3` zurück zum Startplateau
+* Menü rechts oben bleibt immer verfügbar (Portfolio/Projekte/CV/Kontakt)
 
 ## Hub-Layout
 
-* Chunk-Streaming: Welt ist in 16×16-Blöcke geteilt, nur ein 3×3-Kreuz wird gerendert; Spieler bleibt zentriert, die Welt
-  bewegt sich
-* Avatar skaliert als Marker (ca. 50 %) mit weiter herausgezoomter Diorama-Kamera (sanfter Parallax, stabile Übersicht)
-* Linker Pfad: vier Projekt-Stationen als echte Setpieces (Glow, Billboard, Pad) entlang einer physischen Spur bei x=-6
-* Rechter Pfad: vier Career-Steps als räumliche Timeline auf Spur x=+6
-* Zentraler AI-Steg als dritter Track; Vignette bleibt aktiv und weich
+* Schwebende Insel mit mehrlagigen Klippen, Wasserbecken, Cabin und Dock, plus leuchtender Pfad aus Steinen.
+* Linker Pfad: vier Projekt-Stationen mit Glow, Billboard und Light-Pads entlang x ≈ -6.6.
+* Rechter Pfad: vier Karriere/CV-Stationen entlang x ≈ +6.6.
+* Organischer Partikel-Flow über dem Pool (Wind abhängig von Position).
 
 ## Nächste Schritte
 

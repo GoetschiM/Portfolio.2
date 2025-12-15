@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { SceneKey } from "@/lib/state";
 import { createHubScene } from "@/components/scenes/HubScene";
-import { createAIScene } from "@/components/scenes/AIScene";
 import { Player } from "./Player";
 import { KeyState } from "./Input";
 
@@ -11,7 +10,7 @@ export interface ManagedScene {
   tick: (t: number, dt: number) => void;
   getCamera: () => { camPos: THREE.Vector3; look: THREE.Vector3 };
   dispose: () => void;
-  setAnchor?: (anchor: "intro" | "projects" | "career" | "ai") => void;
+  setAnchor?: (anchor: "intro" | "projects" | "career") => void;
 }
 
 export class SceneManager {
@@ -38,14 +37,14 @@ export class SceneManager {
   switchScene(key: SceneKey) {
     if (this.active.key === key) return;
     this.active.dispose();
-    this.active = key === "hub" ? createHubScene(this.player) : createAIScene(this.player);
+    this.active = createHubScene(this.player);
 
     const { camPos, look } = this.active.getCamera();
     this.camera.position.copy(camPos);
     this.camera.lookAt(look);
   }
 
-  jumpToAnchor(anchor: "intro" | "projects" | "career" | "ai") {
+  jumpToAnchor(anchor: "intro" | "projects" | "career") {
     if (this.active.key !== "hub") return;
     this.active.setAnchor?.(anchor);
   }
