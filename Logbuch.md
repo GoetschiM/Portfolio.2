@@ -7,3 +7,4 @@
 - 2025-02-14 10:00 UTC — Hub zur schwebenden Insel mit Vignette, Projekten- & CV-Portalen plus Charakter aufgewertet; Touch-DPad, Quick-Sprünge (1–4), CV-Popup, neue Navigation und README ergänzt.
 - 2025-12-15 20:40 UTC — Hub als Diorama-Insel mit zwei realen Pfaden (Projekte/Timeline), kleiner Avatar, statischere Kamera, aktualisierte Schnell-Sprünge, README & HUD angepasst.
 - 2025-12-15 20:53 UTC — Chunk-Streaming-Layout gebaut (3×3 aktive Chunks, Welt verschiebt sich um den Spieler), echte Projekt-/Karriere-Setpieces pro Spur, AI-Dock integriert, Kamera weiter herausgezogen, HUD/Anchors/README/VERSION aktualisiert.
+- 2025-12-15 21:11 UTC — Hub aufgehellt (Himmel/Licht), grüne Inseln mit Bäumen & Pfadrändern gestaltet, Kamera näher auf den Avatar gesetzt und dezentes Wind-/Schritt-Ambient-Audio integriert; README aktualisiert.

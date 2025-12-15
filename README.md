@@ -5,6 +5,13 @@ ohne r3f und trennt Engine/Scenes/Systems/UI sauber nach dem vereinbarten Archit
 chunk-gestreamtes Diorama (3×3 Chunks aktiv), das die Welt um den Spieler verschiebt: zwei begehbare Pfade (Projekte links,
 berufliche Timeline rechts), schlanker Avatar-Markierer, sanfte Vignette und Touch-Steuerung.
 
+## Neu (0.0.008)
+
+* Hub optisch aufgehellt: freundlicher Himmel, wärmeres Sonnenlicht, dichteres Streulicht.
+* Grüne Inseln mit Pfadbegrenzungen, Bäumen und Grasbüscheln, damit Start und Laufwege wie auf dem Referenzbild wirken.
+* Verbesserte Kamera-Perspektive auf den Avatar, damit der Marker beim Start sofort sichtbar ist.
+* Dezentes Ambient-Audio (Wind + Lauf-Resonanz), das sich beim ersten Input freischaltet und auf die Geschwindigkeit reagiert.
+
 ## Struktur
 
 ```
