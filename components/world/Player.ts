@@ -36,8 +36,8 @@ export class Player {
   getCameraTargets() {
     const baseOffset = new THREE.Vector3(0, CAMERA_HEIGHT, CAMERA_DISTANCE);
     const offset = baseOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw + Math.PI);
-    const cameraPos = this.position.clone().add(offset);
-    const lookAt = this.position.clone().add(new THREE.Vector3(0, 1.4, -2));
-    return { cameraPos, lookAt };
+    const camPos = this.position.clone().add(offset);
+    const look = this.position.clone().add(new THREE.Vector3(0, 1.4, -2));
+    return { camPos, look };
   }
 }

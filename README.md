@@ -47,6 +47,12 @@ npm run dev
 * `http://localhost:3000/` → Landing
 * `http://localhost:3000/world` → Vollbild-3D-Welt (Hub + AI Room Teleport)
 
+### Behobenes Problem: Kamera-Ziel `null`
+
+* Ursache: Der Player lieferte Kamera-Ziele als `{ cameraPos, lookAt }`, während die Szenen `{ camPos, look }` erwarteten.
+* Fix: Ab Version `0.0.004` exportiert `Player.getCameraTargets()` konsistente Keys, wodurch der Fehler `Cannot read properties of null (reading 'look')` verschwindet.
+* Hinweis: Falls der Fehler noch im laufenden Dev-Server erscheint, bitte kurz neu starten (`npm run dev`) und den Cache der Seite aktualisieren.
+
 ## Controls (World)
 
 * Bewegung: `WASD` / Pfeiltasten

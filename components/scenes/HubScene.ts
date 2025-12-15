@@ -99,8 +99,7 @@ export function createHubScene(player: Player): ManagedScene {
       beacon.rotation.z = 0.2 * Math.sin(t / 680);
     },
     getCamera: () => {
-      const camPos = player.getCameraTargets().cameraPos;
-      const look = player.getCameraTargets().look;
+      const { camPos, look } = player.getCameraTargets();
       return { camPos, look };
     },
     dispose: () => {
