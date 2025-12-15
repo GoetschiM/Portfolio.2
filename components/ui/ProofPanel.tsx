@@ -26,10 +26,11 @@ export default function ProofPanel({ onClose }: ProofPanelProps) {
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
           <div>
-            <div style={{ fontSize: 12, letterSpacing: 1.6, opacity: 0.85, textTransform: "uppercase" }}>Evidence</div>
-            <div style={{ marginTop: 8, fontSize: 26, fontWeight: 950 }}>Proof-of-Delivery</div>
+            <div style={{ fontSize: 12, letterSpacing: 1.6, opacity: 0.85, textTransform: "uppercase" }}>CV & Download</div>
+            <div style={{ marginTop: 8, fontSize: 26, fontWeight: 950 }}>Portfolio auf einen Blick</div>
             <div style={{ marginTop: 8, fontSize: 15, opacity: 0.9, lineHeight: 1.55 }}>
-              Platzhalter für CV/Downloads. Später hängen wir echte Links und Assets an.
+              Projekte, Wertegang und Assets an einem Ort. Der Download liefert das CV als PDF; die Kacheln zeigen die wichtigsten
+              Stationen und Kapitel.
             </div>
           </div>
           <button
@@ -49,21 +50,39 @@ export default function ProofPanel({ onClose }: ProofPanelProps) {
         </div>
 
         <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
-          {["System-Hub", "AI Room", "Teleport", "Organic Flow"].map((b) => (
-            <div
-              key={b}
-              style={{
-                padding: "12px 12px",
-                borderRadius: 16,
-                background: "rgba(255,255,255,0.10)",
-                border: "1px solid rgba(255,255,255,0.16)",
-                fontSize: 14,
-                opacity: 0.98,
-              }}
-            >
-              {b}
-            </div>
-          ))}
+          <a
+            href="/cv.pdf"
+            style={{
+              padding: "12px 12px",
+              borderRadius: 16,
+              background: "rgba(255,255,255,0.12)",
+              border: "1px solid rgba(255,255,255,0.24)",
+              fontSize: 14,
+              opacity: 0.98,
+              color: "inherit",
+              textDecoration: "none",
+              fontWeight: 800,
+            }}
+          >
+            CV als PDF herunterladen (Platzhalter)
+          </a>
+          {["XR/AI Experience Design", "Backbone: Next.js + Three.js", "Teleport-Navigation (1-4)", "Projekte & CV als zwei Pfade"].map(
+            (b) => (
+              <div
+                key={b}
+                style={{
+                  padding: "12px 12px",
+                  borderRadius: 16,
+                  background: "rgba(255,255,255,0.10)",
+                  border: "1px solid rgba(255,255,255,0.16)",
+                  fontSize: 14,
+                  opacity: 0.98,
+                }}
+              >
+                {b}
+              </div>
+            ),
+          )}
         </div>
       </div>
     </div>

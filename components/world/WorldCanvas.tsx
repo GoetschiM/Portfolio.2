@@ -12,15 +12,19 @@ interface WorldCanvasProps {
   onHudChange: (text: string) => void;
   onBubble: (text: string) => void;
   onProof: (v: boolean) => void;
+  onInputReady?: (input: Input) => void;
 }
 
-export function WorldCanvas({ onHudChange, onBubble, onProof }: WorldCanvasProps) {
+export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: WorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const managerRef = useRef<SceneManager | null>(null);
   const rafRef = useRef<number | null>(null);
   const input = useRef(new Input());
   const player = useRef(new Player());
   const fadeRef = useRef(0);
+  const vignetteRef = useRef<HTMLDivElement | null>(null);
+  const fadeLayerRef = useRef<HTMLDivElement | null>(null);
+  const overlayRaf = useRef<number | null>(null);
 
   useEffect(() => {
     if (!hostRef.current) return;
@@ -52,6 +56,7 @@ export function WorldCanvas({ onHudChange, onBubble, onProof }: WorldCanvasProps
     managerRef.current = sceneManager;
     const inputManager = input.current;
     inputManager.attach();
+    onInputReady?.(inputManager);
 
     const startTeleport = (to: SceneKey) => {
       const start = performance.now();
@@ -90,25 +95,63 @@ export function WorldCanvas({ onHudChange, onBubble, onProof }: WorldCanvasProps
       const t = performance.now() / 1000;
       const keys = inputManager.snapshot();
 
-        if (keys["Enter"] && sceneManager.sceneKey === "hub" && fadeRef.current < 0.02) {
+      if (sceneManager.sceneKey === "hub") {
+        if (keys["Enter"] && fadeRef.current < 0.02) {
           keys["Enter"] = false;
           startTeleport("ai");
           onBubble("[INFO] Teleport → AI Room");
         }
-        if ((keys["Backspace"] || keys["Escape"]) && sceneManager.sceneKey === "ai" && fadeRef.current < 0.02) {
-          startTeleport("hub");
-          onBubble("[INFO] Zurück zum Systems Hub");
+
+        if (keys["Digit1"]) {
+          managerRef.current?.jumpToAnchor("projects");
+          keys["Digit1"] = false;
+          onBubble("[INFO] Projekte-Pfad angesteuert (Taste 1)");
         }
+        if (keys["Digit2"]) {
+          managerRef.current?.jumpToAnchor("career");
+          keys["Digit2"] = false;
+          onBubble("[INFO] Karriere-Pfad angesteuert (Taste 2)");
+          onProof(true);
+        }
+        if (keys["Digit3"]) {
+          managerRef.current?.jumpToAnchor("ai");
+          keys["Digit3"] = false;
+          onBubble("[INFO] Direkt am AI-Pad (Taste 3)");
+        }
+        if (keys["Digit4"]) {
+          managerRef.current?.jumpToAnchor("intro");
+          keys["Digit4"] = false;
+          onBubble("[INFO] Zurück zum Startpunkt (Taste 4)");
+        }
+      }
+      if ((keys["Backspace"] || keys["Escape"]) && sceneManager.sceneKey === "ai" && fadeRef.current < 0.02) {
+        startTeleport("hub");
+        onBubble("[INFO] Zurück zum Systems Hub");
+      }
 
       sceneManager.update(keys, t, dt);
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
 
-    onHudChange("Hub: WASD/Pfeile bewegen • Shift Sprint • Enter AI Room");
+    const overlayStep = () => {
+      if (vignetteRef.current) {
+        vignetteRef.current.style.setProperty("--fade", fadeRef.current.toFixed(3));
+      }
+      if (fadeLayerRef.current) {
+        fadeLayerRef.current.style.setProperty("--fade", fadeRef.current.toFixed(3));
+      }
+      overlayRaf.current = requestAnimationFrame(overlayStep);
+    };
+    overlayStep();
+
+    onHudChange(
+      "Chunk-Hub: WASD/Pfeile • Shift Sprint • Enter AI-Raum • 1 Projekte • 2 Karriere • 3 AI-Dock • 4 Start",
+    );
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (overlayRaf.current) cancelAnimationFrame(overlayRaf.current);
       inputManager.detach();
       sceneManager.switchScene("hub");
       managerRef.current = null;
@@ -116,7 +159,12 @@ export function WorldCanvas({ onHudChange, onBubble, onProof }: WorldCanvasProps
       window.removeEventListener("resize", resize);
       canvas.remove();
     };
-  }, [onBubble, onHudChange, onProof]);
+  }, [onBubble, onHudChange, onInputReady, onProof]);
 
-  return <div ref={hostRef} className="canvas-host" />;
+  return (
+    <div ref={hostRef} className="canvas-host">
+      <div ref={fadeLayerRef} className="fade-layer" />
+      <div ref={vignetteRef} className="vignette-mask" />
+    </div>
+  );
 }

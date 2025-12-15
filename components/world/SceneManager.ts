@@ -11,6 +11,7 @@ export interface ManagedScene {
   tick: (t: number, dt: number) => void;
   getCamera: () => { camPos: THREE.Vector3; look: THREE.Vector3 };
   dispose: () => void;
+  setAnchor?: (anchor: "intro" | "projects" | "career" | "ai") => void;
 }
 
 export class SceneManager {
@@ -34,6 +35,11 @@ export class SceneManager {
     if (this.active.key === key) return;
     this.active.dispose();
     this.active = key === "hub" ? createHubScene(this.player) : createAIScene(this.player);
+  }
+
+  jumpToAnchor(anchor: "intro" | "projects" | "career" | "ai") {
+    if (this.active.key !== "hub") return;
+    this.active.setAnchor?.(anchor);
   }
 
   update(keys: KeyState, t: number, dt: number) {
