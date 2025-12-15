@@ -10,3 +10,4 @@
 - 2025-12-15 21:11 UTC — Hub aufgehellt (Himmel/Licht), grüne Inseln mit Bäumen & Pfadrändern gestaltet, Kamera näher auf den Avatar gesetzt und dezentes Wind-/Schritt-Ambient-Audio integriert; README aktualisiert.
 
 - 2025-12-15 21:35 UTC — Audio standardmäßig gemutet mit Toggle, Landing personalisiert (Michel Götschi) plus Standard-Onepager ergänzt, HUD mobilfreundlicher gestaltet, README/VERSION aktualisiert.
+- 2025-12-15 22:10 UTC — Hub-Insel visuell neu gebaut (Diorama-Platte, Pools, Sea-House), Weltverschiebung glättet Kamera, Avatar mit Visor/Jacke/Schal erneuert, README/VERSION aktualisiert.

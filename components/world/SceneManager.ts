@@ -25,6 +25,10 @@ export class SceneManager {
     this.camera = camera;
     this.player = player;
     this.active = createHubScene(this.player);
+
+    const { camPos, look } = this.active.getCamera();
+    this.camera.position.copy(camPos);
+    this.camera.lookAt(look);
   }
 
   get sceneKey() {
@@ -35,6 +39,10 @@ export class SceneManager {
     if (this.active.key === key) return;
     this.active.dispose();
     this.active = key === "hub" ? createHubScene(this.player) : createAIScene(this.player);
+
+    const { camPos, look } = this.active.getCamera();
+    this.camera.position.copy(camPos);
+    this.camera.lookAt(look);
   }
 
   jumpToAnchor(anchor: "intro" | "projects" | "career" | "ai") {
@@ -46,7 +54,8 @@ export class SceneManager {
     this.player.update(keys, dt);
     this.active.tick(t, dt);
     const { camPos, look } = this.active.getCamera();
-    this.camera.position.lerp(camPos, 0.1);
+    const smooth = 1 - Math.pow(0.0006, dt);
+    this.camera.position.lerp(camPos, smooth);
     this.camera.lookAt(look);
     this.renderer.render(this.active.scene, this.camera);
   }
