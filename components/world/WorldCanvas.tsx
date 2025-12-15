@@ -14,9 +14,10 @@ interface WorldCanvasProps {
   onBubble: (text: string) => void;
   onProof: (v: boolean) => void;
   onInputReady?: (input: Input) => void;
+  muted: boolean;
 }
 
-export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: WorldCanvasProps) {
+export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, muted }: WorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const managerRef = useRef<SceneManager | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -61,14 +62,6 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: Wo
     const inputManager = input.current;
     inputManager.attach();
     onInputReady?.(inputManager);
-
-    const unlockAudio = () => {
-      ambient.resume();
-      window.removeEventListener("pointerdown", unlockAudio);
-      window.removeEventListener("keydown", unlockAudio);
-    };
-    window.addEventListener("pointerdown", unlockAudio, { once: true });
-    window.addEventListener("keydown", unlockAudio, { once: true });
 
     const startTeleport = (to: SceneKey) => {
       const start = performance.now();
@@ -170,12 +163,18 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: Wo
       managerRef.current = null;
       renderer.dispose();
       ambient.dispose();
-      window.removeEventListener("pointerdown", unlockAudio);
-      window.removeEventListener("keydown", unlockAudio);
       window.removeEventListener("resize", resize);
       canvas.remove();
     };
   }, [onBubble, onHudChange, onInputReady, onProof]);
+
+  useEffect(() => {
+    const ambient = ambience.current;
+    if (!muted) {
+      ambient.resume();
+    }
+    ambient.setMuted(muted);
+  }, [muted]);
 
   return (
     <div ref={hostRef} className="canvas-host">
