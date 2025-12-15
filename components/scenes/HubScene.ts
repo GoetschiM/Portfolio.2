@@ -90,9 +90,9 @@ function createChunk(cx: number, cz: number): ChunkEntry {
   const seed = seededRandom(cx, cz);
   const terrainHeight = 0.4 + 0.8 * Math.sin((cx + cz) * 0.4) + 0.6 * Math.cos(cz * 0.7) + 0.4 * seed;
   const groundGeo = new THREE.BoxGeometry(CHUNK_SIZE, 0.35, CHUNK_SIZE);
-  const groundMat = new THREE.MeshStandardMaterial({ color: "#1c282f", roughness: 0.9 });
+  const groundMat = new THREE.MeshStandardMaterial({ color: "#64b66b", roughness: 0.62, metalness: 0.05 });
   const ground = new THREE.Mesh(groundGeo, groundMat);
-  ground.position.y = -0.4 + terrainHeight * 0.2;
+  ground.position.y = -0.35 + terrainHeight * 0.22;
   ground.receiveShadow = true;
   group.add(ground);
   disposers.push(() => {
@@ -101,7 +101,7 @@ function createChunk(cx: number, cz: number): ChunkEntry {
   });
 
   const undersideGeo = new THREE.ConeGeometry(CHUNK_SIZE * 0.5, CHUNK_SIZE * 0.8, 24, 1, true);
-  const undersideMat = new THREE.MeshStandardMaterial({ color: "#0c1014", roughness: 0.92, side: THREE.DoubleSide });
+  const undersideMat = new THREE.MeshStandardMaterial({ color: "#203726", roughness: 0.9, side: THREE.DoubleSide });
   const underside = new THREE.Mesh(undersideGeo, undersideMat);
   underside.position.y = -2.4 + terrainHeight * 0.2;
   underside.castShadow = true;
@@ -111,31 +111,71 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     undersideMat.dispose();
   });
 
-  const scatterGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
-  const scatterMat = new THREE.MeshStandardMaterial({ color: "#0f161b", roughness: 0.8 });
-  for (let i = 0; i < 12; i++) {
+  const pebbleGeo = new THREE.BoxGeometry(0.4, 0.25, 0.4);
+  const pebbleMat = new THREE.MeshStandardMaterial({ color: "#3d4a32", roughness: 0.82 });
+  for (let i = 0; i < 16; i++) {
     const r = seededRandom(cx + i, cz - i, 33 + i);
-    const shard = new THREE.Mesh(scatterGeo, scatterMat);
-    shard.position.set(
-      (r - 0.5) * (CHUNK_SIZE - 2),
-      0.3 + 0.6 * seededRandom(cx - i, cz + i, 123),
-      (seededRandom(cx * 3 + i, cz * 2 - i, 92) - 0.5) * (CHUNK_SIZE - 2),
+    const pebble = new THREE.Mesh(pebbleGeo, pebbleMat);
+    pebble.position.set(
+      (r - 0.5) * (CHUNK_SIZE - 3),
+      0.15 + 0.25 * seededRandom(cx - i, cz + i, 123),
+      (seededRandom(cx * 3 + i, cz * 2 - i, 92) - 0.5) * (CHUNK_SIZE - 3),
     );
-    const rotSeed = seededRandom(cx - i, cz + i, 8088);
-    shard.rotation.set(rotSeed * Math.PI, rotSeed * Math.PI * 0.6, rotSeed * Math.PI * 1.2);
-    shard.castShadow = true;
-    shard.receiveShadow = true;
-    group.add(shard);
+    pebble.rotation.y = seededRandom(cx - i, cz + i, 8088) * Math.PI * 2;
+    pebble.castShadow = true;
+    pebble.receiveShadow = true;
+    group.add(pebble);
   }
   disposers.push(() => {
-    scatterGeo.dispose();
-    scatterMat.dispose();
+    pebbleGeo.dispose();
+    pebbleMat.dispose();
+  });
+
+  const trunkGeo = new THREE.CylinderGeometry(0.18, 0.24, 1.4, 7);
+  const canopyGeo = new THREE.ConeGeometry(0.95, 1.65, 7, 1, false);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: "#7a4f2b", roughness: 0.62 });
+  const canopyMat = new THREE.MeshStandardMaterial({ color: "#59c47c", roughness: 0.42, emissive: new THREE.Color("#59c47c"), emissiveIntensity: 0.12 });
+  const makeTree = (px: number, pz: number, scale = 1) => {
+    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+    trunk.position.set(px, 0.7 * scale, pz);
+    trunk.scale.setScalar(scale);
+    trunk.castShadow = true;
+    trunk.receiveShadow = true;
+    group.add(trunk);
+
+    const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+    canopy.position.set(px, 1.6 * scale, pz);
+    canopy.scale.setScalar(scale * (0.9 + seededRandom(px, pz, 44) * 0.18));
+    canopy.castShadow = true;
+    canopy.receiveShadow = true;
+    group.add(canopy);
+  };
+
+  for (let i = 0; i < 9; i++) {
+    const rx = seededRandom(cx + i, cz - i, 772) - 0.5;
+    const rz = seededRandom(cx - i, cz + i, 227) - 0.5;
+    const px = rx * (CHUNK_SIZE - 4);
+    const pz = rz * (CHUNK_SIZE - 4);
+    const nearTrack =
+      Math.abs(px - TRACK_PROJECT_X) < 2 ||
+      Math.abs(px - TRACK_CAREER_X) < 2 ||
+      Math.abs(px - TRACK_AI_X) < 1.6;
+    if (nearTrack) continue;
+    makeTree(px, pz, 0.8 + seededRandom(cx * i, cz + i, 99) * 0.4);
+  }
+  disposers.push(() => {
+    trunkGeo.dispose();
+    canopyGeo.dispose();
+    trunkMat.dispose();
+    canopyMat.dispose();
   });
 
   const trackGeo = new THREE.BoxGeometry(1.2, 0.12, 1.2);
-  const trackMatProjects = new THREE.MeshStandardMaterial({ color: "#20313a", roughness: 0.6, metalness: 0.08 });
-  const trackMatCareer = new THREE.MeshStandardMaterial({ color: "#2b2b1f", roughness: 0.6, metalness: 0.08 });
-  const trackMatAi = new THREE.MeshStandardMaterial({ color: "#1b2636", roughness: 0.55, metalness: 0.12 });
+  const trackMatProjects = new THREE.MeshStandardMaterial({ color: "#d8c79f", roughness: 0.52, metalness: 0.08 });
+  const trackMatCareer = new THREE.MeshStandardMaterial({ color: "#f2d5a2", roughness: 0.5, metalness: 0.08 });
+  const trackMatAi = new THREE.MeshStandardMaterial({ color: "#7fb6ff", roughness: 0.48, metalness: 0.2, emissive: new THREE.Color("#7fb6ff"), emissiveIntensity: 0.1 });
+  const borderGeo = new THREE.BoxGeometry(0.28, 0.32, 1.2);
+  const borderMat = new THREE.MeshStandardMaterial({ color: "#8b6a3e", roughness: 0.58, metalness: 0.08 });
   for (let z = -CHUNK_SIZE / 2; z <= CHUNK_SIZE / 2; z += 1.5) {
     const tileL = new THREE.Mesh(trackGeo, trackMatProjects);
     tileL.position.set(TRACK_PROJECT_X, 0, z);
@@ -143,11 +183,35 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     tileL.castShadow = true;
     group.add(tileL);
 
+    const tileLBorderL = new THREE.Mesh(borderGeo, borderMat);
+    tileLBorderL.position.set(TRACK_PROJECT_X - 0.75, 0.08, z);
+    tileLBorderL.castShadow = true;
+    tileLBorderL.receiveShadow = true;
+    group.add(tileLBorderL);
+
+    const tileLBorderR = new THREE.Mesh(borderGeo, borderMat);
+    tileLBorderR.position.set(TRACK_PROJECT_X + 0.75, 0.08, z);
+    tileLBorderR.castShadow = true;
+    tileLBorderR.receiveShadow = true;
+    group.add(tileLBorderR);
+
     const tileR = new THREE.Mesh(trackGeo, trackMatCareer);
     tileR.position.set(TRACK_CAREER_X, 0, z);
     tileR.receiveShadow = true;
     tileR.castShadow = true;
     group.add(tileR);
+
+    const tileRBorderL = new THREE.Mesh(borderGeo, borderMat);
+    tileRBorderL.position.set(TRACK_CAREER_X - 0.75, 0.08, z);
+    tileRBorderL.castShadow = true;
+    tileRBorderL.receiveShadow = true;
+    group.add(tileRBorderL);
+
+    const tileRBorderR = new THREE.Mesh(borderGeo, borderMat);
+    tileRBorderR.position.set(TRACK_CAREER_X + 0.75, 0.08, z);
+    tileRBorderR.castShadow = true;
+    tileRBorderR.receiveShadow = true;
+    group.add(tileRBorderR);
 
     const aiTile = new THREE.Mesh(trackGeo, trackMatAi);
     aiTile.scale.set(0.9, 1, 0.9);
@@ -161,6 +225,8 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     trackMatProjects.dispose();
     trackMatCareer.dispose();
     trackMatAi.dispose();
+    borderGeo.dispose();
+    borderMat.dispose();
   });
 
   const chunkMin = cz * CHUNK_SIZE - CHUNK_SIZE / 2;
@@ -230,23 +296,23 @@ function createChunk(cx: number, cz: number): ChunkEntry {
     makeNode(TRACK_AI_X, aiMarker.z, aiMarker.title, aiMarker.teaser, "#6fa0ff", 4.5);
   }
 
-  const streamGeo = new THREE.BoxGeometry(0.35, 1.1, 0.35);
-  const streamMat = new THREE.MeshStandardMaterial({ color: "#12202a", roughness: 0.7, metalness: 0.08 });
-  for (let i = 0; i < 6; i++) {
-    const stream = new THREE.Mesh(streamGeo, streamMat);
-    stream.position.set(
+  const reedGeo = new THREE.CylinderGeometry(0.14, 0.22, 1.2, 6);
+  const reedMat = new THREE.MeshStandardMaterial({ color: "#4ea06c", roughness: 0.48, emissive: new THREE.Color("#4ea06c"), emissiveIntensity: 0.06 });
+  for (let i = 0; i < 8; i++) {
+    const reed = new THREE.Mesh(reedGeo, reedMat);
+    reed.position.set(
       -5 + seededRandom(cx + i, cz - i, 987) * 10,
-      0.7,
-      -CHUNK_SIZE / 2 + (i / 5) * CHUNK_SIZE,
+      0.6 + seededRandom(cx - i, cz + i, 18) * 0.2,
+      -CHUNK_SIZE / 2 + (i / 7) * CHUNK_SIZE,
     );
-    stream.rotation.y = Math.PI * seededRandom(cx - i, cz + i, 777);
-    stream.castShadow = true;
-    stream.receiveShadow = true;
-    group.add(stream);
+    reed.rotation.y = Math.PI * seededRandom(cx - i, cz + i, 777);
+    reed.castShadow = true;
+    reed.receiveShadow = true;
+    group.add(reed);
   }
   disposers.push(() => {
-    streamGeo.dispose();
-    streamMat.dispose();
+    reedGeo.dispose();
+    reedMat.dispose();
   });
 
   return {
@@ -262,20 +328,25 @@ function createChunk(cx: number, cz: number): ChunkEntry {
 
 export function createHubScene(player: Player): ManagedScene {
   const scene = new THREE.Scene();
-  const SKY = new THREE.Color("#a7d2ff");
+  const SKY = new THREE.Color("#d8f1ff");
   scene.background = SKY;
-  scene.fog = new THREE.Fog(SKY, 18, 95);
+  scene.fog = new THREE.Fog(SKY, 12, 110);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.92));
-  const hemi = new THREE.HemisphereLight(0xe8f6ff, 0x243022, 0.72);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.02));
+  const hemi = new THREE.HemisphereLight(0xeef9ff, 0x2e402d, 0.72);
   hemi.position.set(0, 18, 0);
   scene.add(hemi);
 
-  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+  const sun = new THREE.DirectionalLight(0xfff1c8, 1.65);
   sun.position.set(-14, 18, 13);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.mapSize.set(1536, 1536);
+  sun.shadow.camera.far = 120;
   scene.add(sun);
+
+  const bounce = new THREE.DirectionalLight(0xb3d7ff, 0.4);
+  bounce.position.set(16, 12, -10);
+  scene.add(bounce);
 
   const avatar = createAvatar();
   avatar.group.scale.setScalar(0.5);
@@ -288,9 +359,9 @@ export function createHubScene(player: Player): ManagedScene {
     count: 180,
     center: new THREE.Vector3(0, 1.2, 0),
     radius: 3.4,
-    color: 0x3b7eff,
+    color: 0x4e9cff,
     size: 0.06,
-    opacity: 0.38,
+    opacity: 0.34,
   });
   worldRoot.add(flow.points);
 
@@ -378,9 +449,9 @@ export function createHubScene(player: Player): ManagedScene {
       const parallax = player.position.clone().multiplyScalar(0.18);
       parallax.x = THREE.MathUtils.clamp(parallax.x, -2.2, 2.2);
       parallax.z = THREE.MathUtils.clamp(parallax.z, -2.2, 2.2);
-      const anchor = new THREE.Vector3(0, 11.6, 14.8);
+      const anchor = new THREE.Vector3(0, 10.8, 13.6);
       const camPos = anchor.clone().add(new THREE.Vector3(parallax.x, 0, parallax.z));
-      const look = new THREE.Vector3(player.position.x * 0.55, 0.9, player.position.z - 1.6);
+      const look = new THREE.Vector3(player.position.x * 0.55, 1.4, player.position.z - 1.2);
       return { camPos, look };
     },
     setAnchor: (anchor) => {

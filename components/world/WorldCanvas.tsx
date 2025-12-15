@@ -7,6 +7,7 @@ import { Player } from "./Player";
 import { Input } from "./Input";
 import { clamp, smoothstep } from "@/lib/math";
 import { SceneKey } from "@/lib/state";
+import { AmbientAudio } from "./AmbientAudio";
 
 interface WorldCanvasProps {
   onHudChange: (text: string) => void;
@@ -25,9 +26,12 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: Wo
   const vignetteRef = useRef<HTMLDivElement | null>(null);
   const fadeLayerRef = useRef<HTMLDivElement | null>(null);
   const overlayRaf = useRef<number | null>(null);
+  const ambience = useRef(new AmbientAudio());
 
   useEffect(() => {
     if (!hostRef.current) return;
+
+    const ambient = ambience.current;
 
     const canvas = document.createElement("canvas");
     canvas.style.width = "100%";
@@ -57,6 +61,14 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: Wo
     const inputManager = input.current;
     inputManager.attach();
     onInputReady?.(inputManager);
+
+    const unlockAudio = () => {
+      ambient.resume();
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    };
+    window.addEventListener("pointerdown", unlockAudio, { once: true });
+    window.addEventListener("keydown", unlockAudio, { once: true });
 
     const startTeleport = (to: SceneKey) => {
       const start = performance.now();
@@ -129,6 +141,7 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: Wo
         onBubble("[INFO] Zurück zum Systems Hub");
       }
 
+      ambient.setMovementSpeed(player.current.velocity.length());
       sceneManager.update(keys, t, dt);
       rafRef.current = requestAnimationFrame(loop);
     };
@@ -156,6 +169,9 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady }: Wo
       sceneManager.switchScene("hub");
       managerRef.current = null;
       renderer.dispose();
+      ambient.dispose();
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
       window.removeEventListener("resize", resize);
       canvas.remove();
     };
