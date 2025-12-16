@@ -33,6 +33,31 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
   const fadeLayerRef = useRef<HTMLDivElement | null>(null);
   const overlayRaf = useRef<number | null>(null);
   const ambience = useRef(new AmbientAudio());
+  const hudRef = useRef(onHudChange);
+  const bubbleRef = useRef(onBubble);
+  const proofRef = useRef(onProof);
+  const anchorRef = useRef(onAnchorReady);
+  const inputReadyRef = useRef(onInputReady);
+
+  useEffect(() => {
+    hudRef.current = onHudChange;
+  }, [onHudChange]);
+
+  useEffect(() => {
+    bubbleRef.current = onBubble;
+  }, [onBubble]);
+
+  useEffect(() => {
+    proofRef.current = onProof;
+  }, [onProof]);
+
+  useEffect(() => {
+    anchorRef.current = onAnchorReady;
+  }, [onAnchorReady]);
+
+  useEffect(() => {
+    inputReadyRef.current = onInputReady;
+  }, [onInputReady]);
 
   useEffect(() => {
     if (!hostRef.current) return;
@@ -66,8 +91,8 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
     managerRef.current = sceneManager;
     const inputManager = input.current;
     inputManager.attach();
-    onInputReady?.(inputManager);
-    onAnchorReady?.({
+    inputReadyRef.current?.(inputManager);
+    anchorRef.current?.({
       goIntro: () => managerRef.current?.jumpToAnchor("intro"),
       goProjects: () => managerRef.current?.jumpToAnchor("projects"),
       goCareer: () => managerRef.current?.jumpToAnchor("career"),
@@ -82,18 +107,18 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
       if (keys["Digit1"]) {
         managerRef.current?.jumpToAnchor("projects");
         keys["Digit1"] = false;
-        onBubble("[INFO] Links zum Projektpfad (Taste 1)");
+        bubbleRef.current?.("[INFO] Links zum Projektpfad (Taste 1)");
       }
       if (keys["Digit2"]) {
         managerRef.current?.jumpToAnchor("career");
         keys["Digit2"] = false;
-        onBubble("[INFO] Rechts zur Karriere-Terrasse (Taste 2)");
-        onProof(true);
+        bubbleRef.current?.("[INFO] Rechts zur Karriere-Terrasse (Taste 2)");
+        proofRef.current?.(true);
       }
       if (keys["Digit3"]) {
         managerRef.current?.jumpToAnchor("intro");
         keys["Digit3"] = false;
-        onBubble("[INFO] Zurück zum Startplateau (Taste 3)");
+        bubbleRef.current?.("[INFO] Zurück zum Startplateau (Taste 3)");
       }
 
       ambient.setMovementSpeed(player.current.velocity.length());
@@ -113,7 +138,7 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
     };
     overlayStep();
 
-    onHudChange(
+    hudRef.current(
       "Schwebe-Insel: Immer nach vorne laufen • WASD/Pfeile • Shift Sprint • 1 Projekte (links) • 2 Karriere (rechts) • 3 Startplateau",
     );
 
@@ -127,9 +152,9 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
       ambient.dispose();
       window.removeEventListener("resize", resize);
       canvas.remove();
-      onAnchorReady?.(null);
+      anchorRef.current?.(null);
     };
-  }, [onAnchorReady, onBubble, onHudChange, onInputReady, onProof]);
+  }, []);
 
   useEffect(() => {
     const ambient = ambience.current;

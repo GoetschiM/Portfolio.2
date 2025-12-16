@@ -4,7 +4,10 @@ interface ProofPanelProps {
 
 export default function ProofPanel({ onClose }: ProofPanelProps) {
   return (
-    <div className="overlay" style={{ display: "grid", placeItems: "center" }}>
+    <div
+      className="overlay"
+      style={{ display: "grid", placeItems: "center", pointerEvents: "auto" }}
+    >
       <div
         style={{
           position: "absolute",

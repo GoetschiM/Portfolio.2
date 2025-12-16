@@ -5,6 +5,7 @@ import { AnchorApi, WorldCanvas } from "@/components/world/WorldCanvas";
 import HUD from "@/components/ui/HUD";
 import BubbleHUD from "@/components/ui/BubbleHUD";
 import ProofPanel from "@/components/ui/ProofPanel";
+import ContactPanel from "@/components/ui/ContactPanel";
 import TouchControls from "@/components/ui/TouchControls";
 import { Input } from "@/components/world/Input";
 
@@ -14,6 +15,7 @@ export default function WorldPage() {
   );
   const [bubbles, setBubbles] = useState<string[]>([]);
   const [showProof, setShowProof] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const [input, setInput] = useState<Input | null>(null);
   const [audioMuted, setAudioMuted] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -137,10 +139,8 @@ export default function WorldPage() {
               <button
                 onClick={() => {
                   if (ensureAnchor(anchor?.goIntro)) {
-                    pushBubble("[INFO] Kontakt → michel.goetschi@gmail.com (öffnet Mail)");
-                    if (typeof window !== "undefined") {
-                      window.open("mailto:michel.goetschi@gmail.com?subject=Portfolio%20Anfrage", "_blank");
-                    }
+                    setShowContact(true);
+                    pushBubble("[INFO] Kontakt-Popup geöffnet – alle Kanäle auf einen Blick");
                   }
                 }}
                 style={{
@@ -160,6 +160,7 @@ export default function WorldPage() {
         </div>
         <BubbleHUD bubbles={bubbles} />
         {showProof && <ProofPanel onClose={() => setShowProof(false)} />}
+        {showContact && <ContactPanel onClose={() => setShowContact(false)} />}
         <div
           style={{
             position: "fixed",

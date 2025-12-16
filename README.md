@@ -6,10 +6,10 @@ schwebende Insel im Voxellook: Pools, Klippen, Baumgruppen, Cabin-Setpiece und l
 Karriere/CV-Spur (rechts). Avatar, Kamera und Touch-Steuerung bleiben erhalten, aber die Welt ist deutlich kompakter und
 aufgeräumter.
 
-## Neu (0.0.014)
+## Neu (0.0.015)
 
-* Hintergrundmusik kommt jetzt aus einer extern gehosteten, lizenzfreien MP3 (Pixabay), damit keine Binärdatei im Repo liegt und PRs reibungslos laufen.
-* AmbientAudio setzt `crossOrigin` für die Remote-Quelle und behält das volumenabhängige Verhalten bei.
+* Stabilere WorldCanvas-Initialisierung: Renderer, Input und HUD werden einmalig gebootet, damit die Insel nicht bei Re-Renders neu startet.
+* Kontakt öffnet jetzt ein eigenes Overlay mit Mail/LinkedIn/GitHub statt nur Mailto; Proof-/Kontakt-Panels sind klickbar, weil die Overlay-Pointer-Events korrigiert wurden.
 * README/Logbuch/VERSION aktualisiert.
 
 ## Struktur
