@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { WorldCanvas } from "@/components/world/WorldCanvas";
+import { AnchorApi, WorldCanvas } from "@/components/world/WorldCanvas";
 import HUD from "@/components/ui/HUD";
 import BubbleHUD from "@/components/ui/BubbleHUD";
 import ProofPanel from "@/components/ui/ProofPanel";
@@ -10,7 +10,7 @@ import { Input } from "@/components/world/Input";
 
 export default function WorldPage() {
   const [hud, setHud] = useState(
-    "Schwebe-Insel: WASD/Pfeile • Shift Sprint • 1 Projekte (links) • 2 Karriere (rechts) • 3 Startplateau",
+    "Schwebe-Insel: Immer nach vorne laufen • WASD/Pfeile • Shift Sprint • 1 Projekte (links) • 2 Karriere (rechts) • 3 Startplateau",
   );
   const [bubbles, setBubbles] = useState<string[]>([]);
   const [showProof, setShowProof] = useState(false);
@@ -18,6 +18,18 @@ export default function WorldPage() {
   const [audioMuted, setAudioMuted] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
+  const [anchor, setAnchor] = useState<AnchorApi | null>(null);
+
+  const pushBubble = (text: string) => setBubbles((prev) => [text, ...prev].slice(0, 5));
+
+  const ensureAnchor = (fn: (() => void) | null | undefined) => {
+    if (!fn) {
+      pushBubble("[INFO] Navigation lädt noch – bitte kurz warten");
+      return false;
+    }
+    fn();
+    return true;
+  };
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 780px)");
@@ -34,10 +46,11 @@ export default function WorldPage() {
     <div className="canvas-host">
       <WorldCanvas
         onHudChange={setHud}
-        onBubble={(b) => setBubbles((prev) => [b, ...prev].slice(0, 5))}
+        onBubble={pushBubble}
         onProof={setShowProof}
         onInputReady={setInput}
         muted={audioMuted}
+        onAnchorReady={setAnchor}
       />
       <div className="overlay" style={{ padding: 14 }}>
         <HUD text={hud} />
@@ -85,7 +98,12 @@ export default function WorldPage() {
           {(!isCompact || menuOpen) && (
             <div style={{ display: "grid", gap: 8 }}>
               <button
-                onClick={() => setShowProof(true)}
+                onClick={() => {
+                  if (ensureAnchor(anchor?.goCareer)) {
+                    setShowProof(true);
+                    pushBubble("[INFO] CV-Pfad → Taste 2 oder rechter Weg");
+                  }
+                }}
                 style={{
                   cursor: "pointer",
                   padding: "10px 12px",
@@ -99,7 +117,11 @@ export default function WorldPage() {
                 CV anzeigen
               </button>
               <button
-                onClick={() => setBubbles((prev) => ["[INFO] Projekte → Taste 1 oder linker Pfad", ...prev].slice(0, 5))}
+                onClick={() => {
+                  if (ensureAnchor(anchor?.goProjects)) {
+                    pushBubble("[INFO] Projekte → Taste 1 oder linker Pfad");
+                  }
+                }}
                 style={{
                   cursor: "pointer",
                   padding: "10px 12px",
@@ -113,7 +135,14 @@ export default function WorldPage() {
                 Projekte
               </button>
               <button
-                onClick={() => setBubbles((prev) => ["[INFO] Kontakt → michel.goetschi@gmail.com", ...prev].slice(0, 5))}
+                onClick={() => {
+                  if (ensureAnchor(anchor?.goIntro)) {
+                    pushBubble("[INFO] Kontakt → michel.goetschi@gmail.com (öffnet Mail)");
+                    if (typeof window !== "undefined") {
+                      window.open("mailto:michel.goetschi@gmail.com?subject=Portfolio%20Anfrage", "_blank");
+                    }
+                  }
+                }}
                 style={{
                   cursor: "pointer",
                   padding: "10px 12px",
@@ -147,9 +176,9 @@ export default function WorldPage() {
             <span style={{ fontSize: 18 }}>{audioMuted ? "🔇" : "🔊"}</span>
             <div style={{ display: "grid", gap: 2, textAlign: "left" }}>
               <span style={{ fontSize: 12, letterSpacing: 1.2, opacity: 0.8, textTransform: "uppercase" }}>Sound</span>
-              <span style={{ fontWeight: 800 }}>{audioMuted ? "Mute aktiv" : "Klang an"}</span>
+              <span style={{ fontWeight: 800 }}>{audioMuted ? "Mute aktiv" : "Hintergrundmusik"}</span>
               <span style={{ opacity: 0.75, fontSize: 12 }}>
-                {audioMuted ? "Tippen zum Einschalten" : "Wind & Schritte hörbar"}
+                {audioMuted ? "Tippen zum Einschalten" : "Sanfte Melodie läuft"}
               </span>
             </div>
           </button>

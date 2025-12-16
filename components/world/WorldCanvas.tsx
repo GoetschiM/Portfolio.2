@@ -13,9 +13,16 @@ interface WorldCanvasProps {
   onProof: (v: boolean) => void;
   onInputReady?: (input: Input) => void;
   muted: boolean;
+  onAnchorReady?: (api: AnchorApi | null) => void;
 }
 
-export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, muted }: WorldCanvasProps) {
+export type AnchorApi = {
+  goIntro: () => void;
+  goProjects: () => void;
+  goCareer: () => void;
+};
+
+export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, muted, onAnchorReady }: WorldCanvasProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const managerRef = useRef<SceneManager | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -60,6 +67,11 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
     const inputManager = input.current;
     inputManager.attach();
     onInputReady?.(inputManager);
+    onAnchorReady?.({
+      goIntro: () => managerRef.current?.jumpToAnchor("intro"),
+      goProjects: () => managerRef.current?.jumpToAnchor("projects"),
+      goCareer: () => managerRef.current?.jumpToAnchor("career"),
+    });
 
     const clock = new THREE.Clock();
     const loop = () => {
@@ -101,7 +113,9 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
     };
     overlayStep();
 
-    onHudChange("Insel-Welt: WASD/Pfeile • Shift Sprint • 1 Projekte • 2 Karriere • 3 Startplateau");
+    onHudChange(
+      "Schwebe-Insel: Immer nach vorne laufen • WASD/Pfeile • Shift Sprint • 1 Projekte (links) • 2 Karriere (rechts) • 3 Startplateau",
+    );
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -113,8 +127,9 @@ export function WorldCanvas({ onHudChange, onBubble, onProof, onInputReady, mute
       ambient.dispose();
       window.removeEventListener("resize", resize);
       canvas.remove();
+      onAnchorReady?.(null);
     };
-  }, [onBubble, onHudChange, onInputReady, onProof]);
+  }, [onAnchorReady, onBubble, onHudChange, onInputReady, onProof]);
 
   useEffect(() => {
     const ambient = ambience.current;

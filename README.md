@@ -6,12 +6,11 @@ schwebende Insel im Voxellook: Pools, Klippen, Baumgruppen, Cabin-Setpiece und l
 Karriere/CV-Spur (rechts). Avatar, Kamera und Touch-Steuerung bleiben erhalten, aber die Welt ist deutlich kompakter und
 aufgeräumter.
 
-## Neu (0.0.011)
+## Neu (0.0.014)
 
-* Welt-Reset: Insel nach Bild-Referenz aufgebaut (mehrlagige Klippen, Pools, Cabin, leuchtende Pfade) und AI-Raum entfernt.
-* Neue Marker & Beschilderung für vier Projekte und vier Karriere-Stationen, inkl. Glow, Billboard und Light-Pads.
-* HUD/Overlay neu angeordnet: Controls links oben, Navigation als separate Karte rechts (mobile-friendly Toggle).
-* Landing-Intro überarbeitet, damit die neue Insel-Optik und Navigation (Tasten 1–3) sofort klar sind.
+* Hintergrundmusik kommt jetzt aus einer extern gehosteten, lizenzfreien MP3 (Pixabay), damit keine Binärdatei im Repo liegt und PRs reibungslos laufen.
+* AmbientAudio setzt `crossOrigin` für die Remote-Quelle und behält das volumenabhängige Verhalten bei.
+* README/Logbuch/VERSION aktualisiert.
 
 ## Struktur
 
@@ -56,6 +55,12 @@ npm run dev
 
 * `http://localhost:3000/` → Landing
 * `http://localhost:3000/world` → Vollbild-3D-Welt (schwebende Insel)
+
+### Pull Requests & Pflege
+
+* Version immer in `VERSION` um eins erhöhen; Änderungen mit Datum/Uhrzeit in `Logbuch.md` notieren (UTC).
+* Vor dem Commit `npm run lint` ausführen.
+* PR-Text kurz halten: Was sich ändert, warum es besser ist und welche Checks liefen.
 
 ### Behobenes Problem: Kamera-Ziel `null`
 

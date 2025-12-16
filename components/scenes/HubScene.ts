@@ -15,6 +15,10 @@ const palette = {
   wood: "#b8733f",
   accent: "#f36e4d",
   glow: "#8cf1ff",
+  soil: "#c3af8a",
+  path: "#d9c8a8",
+  flower1: "#ffbde6",
+  flower2: "#9fd6ff",
 };
 
 type NodeConfig = {
@@ -29,15 +33,15 @@ type NodeConfig = {
 const projectNodes: NodeConfig[] = [
   { id: "p1", position: new THREE.Vector3(-6.6, 0, 4), title: "Projekt 1", subtitle: "Plattformen", color: "#86f7c9", triggerRadius: 3.6 },
   { id: "p2", position: new THREE.Vector3(-6.6, 0, 10), title: "Projekt 2", subtitle: "Frontend UX", color: "#8ae2ff", triggerRadius: 3.6 },
-  { id: "p3", position: new THREE.Vector3(-6.6, 0, 16), title: "Projekt 3", subtitle: "Realtime", color: "#f7d266", triggerRadius: 3.6 },
-  { id: "p4", position: new THREE.Vector3(-6.6, 0, 22), title: "Projekt 4", subtitle: "Automation", color: "#ffb0df", triggerRadius: 3.6 },
+  { id: "p3", position: new THREE.Vector3(-6.6, 0, 15.5), title: "Projekt 3", subtitle: "Realtime", color: "#f7d266", triggerRadius: 3.6 },
+  { id: "p4", position: new THREE.Vector3(-6.6, 0, 21.2), title: "Projekt 4", subtitle: "Automation", color: "#ffb0df", triggerRadius: 3.6 },
 ];
 
 const careerNodes: NodeConfig[] = [
   { id: "c1", position: new THREE.Vector3(6.6, 0, 5), title: "2015–2017", subtitle: "Einstieg", color: "#ffd39b", triggerRadius: 3.2 },
   { id: "c2", position: new THREE.Vector3(6.6, 0, 11), title: "2018–2020", subtitle: "Delivery", color: "#8bffcc", triggerRadius: 3.2 },
   { id: "c3", position: new THREE.Vector3(6.6, 0, 17), title: "2021–2023", subtitle: "Lead", color: "#9cb8ff", triggerRadius: 3.2 },
-  { id: "c4", position: new THREE.Vector3(6.6, 0, 23), title: "Heute", subtitle: "Coaching", color: "#f4a8ff", triggerRadius: 3.2 },
+  { id: "c4", position: new THREE.Vector3(6.6, 0, 21.6), title: "Heute", subtitle: "Coaching", color: "#f4a8ff", triggerRadius: 3.2 },
 ];
 
 function createSign(text: string, subtitle: string, color: string, scale = 1) {
@@ -81,39 +85,84 @@ function createFloatingCloud(color: string, radius: number) {
   const cloud = new THREE.Group();
   const geo = new THREE.BoxGeometry(1, 1, 1);
   const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0.05 });
-  for (let i = 0; i < 7; i++) {
+  const puffCount = 9 + Math.floor(Math.random() * 6);
+  for (let i = 0; i < puffCount; i++) {
     const cube = new THREE.Mesh(geo, mat);
-    cube.scale.setScalar(radius * (0.7 + Math.random() * 0.4));
-    cube.position.set((Math.random() - 0.5) * radius * 2, (Math.random() - 0.5) * radius, (Math.random() - 0.5) * radius * 2);
+    cube.scale.setScalar(radius * (0.6 + Math.random() * 0.55));
+    cube.position.set((Math.random() - 0.5) * radius * 2.4, (Math.random() - 0.5) * radius * 1.2, (Math.random() - 0.5) * radius * 2.4);
     cube.castShadow = true;
     cloud.add(cube);
   }
   return { cloud, dispose: () => { geo.dispose(); mat.dispose(); } };
 }
 
+function createFlower(group: THREE.Group, x: number, z: number, color: string) {
+  const stemGeo = new THREE.CylinderGeometry(0.04, 0.06, 0.6, 6);
+  const blossomGeo = new THREE.SphereGeometry(0.16, 8, 8);
+  const stemMat = new THREE.MeshStandardMaterial({ color: "#4ac57f", roughness: 0.45, emissive: new THREE.Color("#4ac57f"), emissiveIntensity: 0.18 });
+  const blossomMat = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.05, emissive: new THREE.Color(color), emissiveIntensity: 0.22 });
+
+  const stem = new THREE.Mesh(stemGeo, stemMat);
+  stem.position.set(x, 0.35, z);
+  stem.castShadow = true;
+  group.add(stem);
+
+  const blossom = new THREE.Mesh(blossomGeo, blossomMat);
+  blossom.position.set(x + (Math.random() - 0.5) * 0.06, 0.75, z + (Math.random() - 0.5) * 0.06);
+  blossom.scale.setScalar(0.9 + Math.random() * 0.18);
+  blossom.castShadow = true;
+  group.add(blossom);
+
+  return () => {
+    stemGeo.dispose();
+    blossomGeo.dispose();
+    stemMat.dispose();
+    blossomMat.dispose();
+  };
+}
+
 function createTree(group: THREE.Group, x: number, z: number, scale = 1) {
-  const trunkGeo = new THREE.BoxGeometry(0.5, 1.6, 0.5);
-  const canopyGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-  const trunkMat = new THREE.MeshStandardMaterial({ color: palette.wood, roughness: 0.62 });
-  const canopyMat = new THREE.MeshStandardMaterial({ color: "#4df0a4", roughness: 0.45, emissive: new THREE.Color("#4df0a4"), emissiveIntensity: 0.12 });
+  const trunkGeo = new THREE.CylinderGeometry(0.24, 0.32, 1.9, 8);
+  const capGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.16, 6);
+  const canopyGeo = new THREE.BoxGeometry(1.6, 1.25, 1.6);
+  const canopyTopGeo = new THREE.BoxGeometry(1.2, 1.1, 1.2);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: palette.wood, roughness: 0.58, metalness: 0.08 });
+  const canopyMat = new THREE.MeshStandardMaterial({ color: "#43e491", roughness: 0.4, emissive: new THREE.Color("#43e491"), emissiveIntensity: 0.16 });
 
   const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-  trunk.position.set(x, 0.8 * scale, z);
+  trunk.position.set(x, 0.95 * scale, z);
   trunk.scale.setScalar(scale);
   trunk.castShadow = true;
   trunk.receiveShadow = true;
   group.add(trunk);
 
+  const cap = new THREE.Mesh(capGeo, trunkMat);
+  cap.position.set(x, 1.92 * scale, z);
+  cap.scale.setScalar(scale * 1.05);
+  cap.castShadow = true;
+  cap.receiveShadow = true;
+  group.add(cap);
+
   const canopy = new THREE.Mesh(canopyGeo, canopyMat);
-  canopy.position.set(x, 1.8 * scale, z);
-  canopy.scale.setScalar(scale * (0.9 + Math.random() * 0.15));
+  canopy.position.set(x, 2.25 * scale, z);
+  canopy.scale.setScalar(scale * (0.9 + Math.random() * 0.2));
+  canopy.rotation.y = Math.random() * Math.PI;
   canopy.castShadow = true;
   canopy.receiveShadow = true;
   group.add(canopy);
 
+  const canopyTop = new THREE.Mesh(canopyTopGeo, canopyMat);
+  canopyTop.position.set(x + (Math.random() - 0.5) * 0.28 * scale, 2.9 * scale, z + (Math.random() - 0.5) * 0.28 * scale);
+  canopyTop.scale.setScalar(scale * (0.8 + Math.random() * 0.2));
+  canopyTop.castShadow = true;
+  canopyTop.receiveShadow = true;
+  group.add(canopyTop);
+
   return () => {
     trunkGeo.dispose();
+    capGeo.dispose();
     canopyGeo.dispose();
+    canopyTopGeo.dispose();
     trunkMat.dispose();
     canopyMat.dispose();
   };
@@ -232,37 +281,53 @@ export function createHubScene(player: Player): ManagedScene {
   const island = new THREE.Group();
   worldRoot.add(island);
 
-  const cliffGeo = new THREE.BoxGeometry(26, 6, 22);
+  const cliffGeo = new THREE.BoxGeometry(32, 6.4, 50);
   const cliffMat = new THREE.MeshStandardMaterial({ color: palette.cliff, roughness: 0.74, metalness: 0.08 });
   const cliff = new THREE.Mesh(cliffGeo, cliffMat);
-  cliff.position.y = -3.1;
+  cliff.position.y = -3.3;
   cliff.receiveShadow = true;
   cliff.castShadow = true;
   island.add(cliff);
 
-  const midGeo = new THREE.BoxGeometry(24, 2, 20);
+  const midGeo = new THREE.BoxGeometry(30, 2.3, 46);
   const midMat = new THREE.MeshStandardMaterial({ color: palette.sand, roughness: 0.68, metalness: 0.06 });
   const mid = new THREE.Mesh(midGeo, midMat);
-  mid.position.y = -1.5;
+  mid.position.y = -1.6;
   mid.receiveShadow = true;
   mid.castShadow = true;
   island.add(mid);
 
-  const topGeo = new THREE.BoxGeometry(23, 0.9, 19);
+  const topGeo = new THREE.BoxGeometry(28, 1, 44);
   const topMat = new THREE.MeshStandardMaterial({ color: palette.grass, roughness: 0.48, metalness: 0.08 });
   const top = new THREE.Mesh(topGeo, topMat);
-  top.position.y = 0.1;
+  top.position.y = 0.12;
   top.receiveShadow = true;
   top.castShadow = true;
   island.add(top);
 
-  const rimGeo = new THREE.BoxGeometry(22, 0.16, 18);
+  const rimGeo = new THREE.BoxGeometry(27, 0.18, 42);
   const rimMat = new THREE.MeshStandardMaterial({ color: palette.moss, roughness: 0.64 });
   const rim = new THREE.Mesh(rimGeo, rimMat);
-  rim.position.y = 0.65;
+  rim.position.y = 0.7;
   rim.receiveShadow = true;
   rim.castShadow = true;
   island.add(rim);
+
+  const soilGeo = new THREE.BoxGeometry(26, 0.12, 40);
+  const soilMat = new THREE.MeshStandardMaterial({ color: palette.soil, roughness: 0.6, metalness: 0.05 });
+  const soil = new THREE.Mesh(soilGeo, soilMat);
+  soil.position.y = 0.63;
+  soil.receiveShadow = true;
+  soil.castShadow = true;
+  island.add(soil);
+
+  const pathGeo = new THREE.BoxGeometry(3.2, 0.12, 44);
+  const pathMat = new THREE.MeshStandardMaterial({ color: palette.path, roughness: 0.44, metalness: 0.08 });
+  const path = new THREE.Mesh(pathGeo, pathMat);
+  path.position.set(0, 0.66, 6);
+  path.receiveShadow = true;
+  path.castShadow = true;
+  island.add(path);
 
   const waterGeo = new THREE.CylinderGeometry(3.2, 3.2, 0.6, 32);
   const waterMat = new THREE.MeshStandardMaterial({ color: palette.water, roughness: 0.16, metalness: 0.22, transparent: true, opacity: 0.85 });
@@ -327,19 +392,19 @@ export function createHubScene(player: Player): ManagedScene {
     island.add(s);
   };
 
-  for (let z = -8; z <= 24; z += 2.6) {
+  for (let z = -14; z <= 28; z += 2.4) {
     addStep(0, z);
   }
-  for (let z = 2; z <= 22; z += 3.2) {
-    addStep(-6.5, z);
-    addStep(6.5, z + 1.2);
+  for (let z = -2; z <= 26; z += 3) {
+    addStep(-6.8, z);
+    addStep(6.8, z + 1.4);
   }
 
   const grassTuftGeo = new THREE.CylinderGeometry(0.08, 0.12, 0.8, 6);
   const grassTuftMat = new THREE.MeshStandardMaterial({ color: "#6ef3a2", roughness: 0.36, emissive: new THREE.Color("#6ef3a2"), emissiveIntensity: 0.08 });
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 200; i++) {
     const tuft = new THREE.Mesh(grassTuftGeo, grassTuftMat);
-    tuft.position.set((Math.random() - 0.5) * 18, 0.5 + Math.random() * 0.18, (Math.random() - 0.5) * 15);
+    tuft.position.set((Math.random() - 0.5) * 22, 0.5 + Math.random() * 0.18, -18 + Math.random() * 36);
     tuft.castShadow = true;
     tuft.receiveShadow = true;
     island.add(tuft);
@@ -354,15 +419,30 @@ export function createHubScene(player: Player): ManagedScene {
     [1.2, -4.2],
     [3.4, 11],
     [-6.5, 14.4],
+    [-7.4, 6],
+    [7.2, 3],
+    [-2.4, 22.8],
+    [2.6, 24],
+    [6.2, 18.6],
+    [-5.8, 20.4],
+    [0.8, 15.2],
   ];
-  treePositions.forEach(([x, z]) => treeDisposers.push(createTree(island, x, z, 0.9 + Math.random() * 0.3)));
+  treePositions.forEach(([x, z]) => treeDisposers.push(createTree(island, x, z, 0.9 + Math.random() * 0.35)));
+
+  const flowerDisposers: Array<() => void> = [];
+  for (let i = 0; i < 80; i++) {
+    const x = (Math.random() - 0.5) * 18;
+    const z = -10 + Math.random() * 40;
+    const color = Math.random() > 0.5 ? palette.flower1 : palette.flower2;
+    flowerDisposers.push(createFlower(island, x, z, color));
+  }
 
   const clouds: Array<{ cloud: THREE.Group; dispose: () => void; speed: number }> = [];
   const cloudColors = ["#f7fbff", "#eaf5ff", "#f2fbff"];
-  for (let i = 0; i < 6; i++) {
-    const entry = createFloatingCloud(cloudColors[i % cloudColors.length], 1.4 + Math.random() * 0.6);
-    entry.cloud.position.set(-14 + Math.random() * 28, 9 + Math.random() * 6, -6 + Math.random() * 20);
-    clouds.push({ ...entry, speed: 0.4 + Math.random() * 0.35 });
+  for (let i = 0; i < 12; i++) {
+    const entry = createFloatingCloud(cloudColors[i % cloudColors.length], 1.35 + Math.random() * 0.7);
+    entry.cloud.position.set(-18 + Math.random() * 36, 9 + Math.random() * 7, -10 + Math.random() * 38);
+    clouds.push({ ...entry, speed: 0.32 + Math.random() * 0.5 });
     scene.add(entry.cloud);
   }
 
@@ -387,6 +467,10 @@ export function createHubScene(player: Player): ManagedScene {
       topMat.dispose();
       rimGeo.dispose();
       rimMat.dispose();
+      soilGeo.dispose();
+      soilMat.dispose();
+      pathGeo.dispose();
+      pathMat.dispose();
       waterGeo.dispose();
       waterMat.dispose();
       waterfallGeo.dispose();
@@ -410,6 +494,9 @@ export function createHubScene(player: Player): ManagedScene {
     },
     () => {
       treeDisposers.forEach((fn) => fn());
+    },
+    () => {
+      flowerDisposers.forEach((fn) => fn());
     },
   ];
 
@@ -439,8 +526,8 @@ export function createHubScene(player: Player): ManagedScene {
     key: "hub",
     scene,
     tick: (t: number) => {
-      player.position.x = clamp(player.position.x, -9.5, 9.5);
-      player.position.z = clamp(player.position.z, -9.5, 25.5);
+      player.position.x = clamp(player.position.x, -10.5, 10.5);
+      player.position.z = clamp(player.position.z, -14, 30);
 
       const nearPool = player.position.distanceTo(new THREE.Vector3(1.6, 0, 2.2)) < 4.5;
       const targetWind = nearPool ? 0.68 : 0.38;
