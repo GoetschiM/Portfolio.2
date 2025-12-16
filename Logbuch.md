@@ -15,3 +15,4 @@
 - 2025-12-15 23:24 UTC — Insel verbreitert (langer Mittelweg, dichterer Wald, Blumen, mehr Wolken), Buttons springen direkt zu Projekten/Karriere, Hintergrundmusik als MP3 hinterlegt; HUD/README/VERSION aktualisiert.
 - 2025-12-16 09:21 UTC — HUD-Navigation robuster gemacht (Hinweis falls Anker fehlen, Kontakt öffnet Mailto), README um PR-/Pflegehinweise ergänzt, VERSION erhöht.
 - 2025-12-16 11:05 UTC — Hintergrundmusik aus externer, lizenzfreier Quelle eingebunden (keine Binärdatei im Repo), AmbientAudio auf Remote-Stream angepasst, README/VERSION aktualisiert.
+- 2025-12-16 21:37 UTC — Kontakt als eigenes Overlay ergänzt (statt Mailto-only), Panels klickbar gemacht, WorldCanvas-Initialisierung entkoppelt, README/VERSION aktualisiert.
